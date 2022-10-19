@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "developers-zone",
+    "slug": "developers-zone",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "developers-zone"
+}
