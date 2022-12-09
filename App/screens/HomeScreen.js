@@ -29,8 +29,13 @@ export default class HomeScreen extends Component {
       winnerIndex: null,
       started: false,
       displaySettings: false,
+      value: 5,
+      isOn: true,
+      selectedIndices: [1]
     };
     this.child = null;
+    this.updateIndex = this.updateIndex.bind(this)
+    this.updateDistanceValue = this.updateDistanceValue.bind(this)
   }
 
   buttonPress = () => {
@@ -38,12 +43,27 @@ export default class HomeScreen extends Component {
       started: true,
     });
     this.child._onPress();
-  };
+  }
 
   handleChangeDisplaySettings = () => {
     const currValue = this.state.displaySettings;
     this.setState({displaySettings: !currValue})
-    // console.log('displaySettings is currently: ', this.state.displaySettings);
+  }
+
+  toggleIsOpenOption = () => {
+    const isOn = this.state.isOn;
+    this.setState({isOn: !isOn})
+  }
+
+  updateDistanceValue (input) {
+    const newValue = Math.round(input * 10) / 10;
+    this.setState({value: newValue})
+  }
+
+  updateIndex (newIndices) {
+    if (newIndices.length != 0 ){
+        this.setState({selectedIndices: newIndices})
+    }
   }
   
   render() {
@@ -71,6 +91,12 @@ export default class HomeScreen extends Component {
             {/* Conditionally displayed settings menu */}
             {this.state.displaySettings && <Settings
               handleChangeDisplaySettings={this.handleChangeDisplaySettings}
+              updateDistanceValue={this.updateDistanceValue}
+              toggleIsOpenOption={this.toggleIsOpenOption}
+              value={this.state.value}
+              isOn={this.state.isOn}
+              selectedIndices={this.state.selectedIndices}
+              updateIndex={this.updateIndex}
             />}
 
             {/* The Wheel */}

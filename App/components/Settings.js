@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
+import { Modal, StyleSheet, View, Image, Text, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import React, { Component } from 'react';
 import Images from '../assets/Images';
 import ToggleSwitch from 'toggle-switch-react-native';
@@ -8,39 +8,24 @@ import { ButtonGroup } from 'react-native-elements';
 export default class Settings extends Component {
     constructor(props) {
         super(props);
-        this.updateIndex = this.updateIndex.bind(this)
     }
-
-    state = {
-        value: 5,
-        isOn: true,
-        selectedIndices: [1]
-    };
-
-    updateIndex (newIndices) {
-        if (newIndices.length != 0 ){
-            this.setState({selectedIndices: newIndices})
-        }
-      }
 
     render() {
         const buttons = ['$', '$$', '$$$']
 
         return (
             <Modal transparent={true}>
-                <View style={{backgroundColor: "#000000aa", flex:1}}>
+                <TouchableOpacity onPress={this.props.handleChangeDisplaySettings} activeOpacity='1.0' style={{backgroundColor: "#000000aa", flex:1}}>
                     <View style={styles.settingsMenu}>
                         <TouchableOpacity onPress={this.props.handleChangeDisplaySettings}>
                             <Image source={Images.closeIcon} style={styles.closeIcon}/>
                         </TouchableOpacity>
                         <Text style={styles.settingsHeader}>Settings</Text>
                         <View style={styles.sliderContainer}>
-                            <Text style={styles.menuText}>Distance Radius: {this.state.value} mi</Text>
+                            <Text style={styles.menuText}>Distance Radius: {this.props.value} mi</Text>
                             <Slider
-                                value={this.state.value}
-                                onValueChange={value => {
-                                    value = Math.round(value * 10) / 10;
-                                    this.setState({value})}}
+                                value={this.props.value}
+                                onValueChange={value => this.props.updateDistanceValue(value[0])}
                                 minimumTrackTintColor='#5858D0'
                                 thumbTintColor='#5858D0'
                                 minimumValue={1}
@@ -51,9 +36,9 @@ export default class Settings extends Component {
                             <Text style={[styles.menuText, {paddingBottom: '5%'}]}>Price Range</Text>
                             <ButtonGroup
                                 underlayColor='red'
-                                onPress={this.updateIndex}
+                                onPress={this.props.updateIndex}
                                 selectMultiple={true}
-                                selectedIndexes={this.state.selectedIndices}
+                                selectedIndexes={this.props.selectedIndices}
                                 buttons={buttons}
                                 containerStyle={{borderRadius: 25}} 
                                 selectedButtonStyle={{backgroundColor: '#5858D0'}}
@@ -62,16 +47,16 @@ export default class Settings extends Component {
                         <View style={styles.openNowToggleContainer}>
                             <Text style={styles.menuText}>Open Now</Text>
                             <ToggleSwitch
-                                isOn={this.state.isOn}
+                                isOn={this.props.isOn}
                                 onColor='#5858D0'
                                 offColor='lightgrey'
                                 size="large"
-                                onToggle={() => this.setState({isOn: !this.state.isOn})}
+                                onToggle={this.props.toggleIsOpenOption}
                                 style={{paddingLeft: '4%'}}
                             />
                         </View>  
                     </View>
-                </View>
+                </TouchableOpacity>
             </Modal>
         ) 
     }
