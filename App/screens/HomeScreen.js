@@ -45,7 +45,8 @@ export default class HomeScreen extends Component {
     this.setState({displaySettings: !currValue})
     // console.log('displaySettings is currently: ', this.state.displaySettings);
   }
-      render() {
+  
+  render() {
         const wheelOptions = {
           rewards: participants,
           knobSize: 50,
@@ -105,8 +106,8 @@ export default class HomeScreen extends Component {
             )}
           </View>
         );
-      }
-    }
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
