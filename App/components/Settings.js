@@ -35,10 +35,10 @@ export default class Settings extends Component {
                         <View style={styles.priceRangeContainer}>
                             <Text style={[styles.menuText, {paddingBottom: '5%'}]}>Price Range</Text>
                             <ButtonGroup
-                                underlayColor='red'
+                                underlayColor='red' //eliminate line if not necessary
                                 onPress={this.props.updateIndex}
                                 selectMultiple={true}
-                                selectedIndexes={this.props.selectedIndices}
+                                selectedIndexes={this.props.selectedPricepoints}
                                 buttons={buttons}
                                 containerStyle={{borderRadius: 25}} 
                                 selectedButtonStyle={{backgroundColor: '#5858D0'}}
@@ -47,7 +47,7 @@ export default class Settings extends Component {
                         <View style={styles.openNowToggleContainer}>
                             <Text style={styles.menuText}>Open Now</Text>
                             <ToggleSwitch
-                                isOn={this.props.isOn}
+                                isOn={this.props.openNow}
                                 onColor='#5858D0'
                                 offColor='lightgrey'
                                 size="large"
