@@ -15,9 +15,9 @@ export default class Settings extends Component {
 
         return (
             <Modal transparent={true}>
-                <TouchableOpacity onPress={this.props.handleChangeDisplaySettings} activeOpacity='1.0' style={{backgroundColor: "#000000aa", flex:1}}>
+                <TouchableOpacity onPress={this.props.toggleMenu} activeOpacity='1.0' style={{backgroundColor: "#000000aa", flex:1}}>
                     <View style={styles.settingsMenu}>
-                        <TouchableOpacity onPress={this.props.handleChangeDisplaySettings}>
+                        <TouchableOpacity onPress={this.props.toggleMenu}>
                             <Image source={Images.closeIcon} style={styles.closeIcon}/>
                         </TouchableOpacity>
                         <Text style={styles.settingsHeader}>Settings</Text>
@@ -28,7 +28,7 @@ export default class Settings extends Component {
                                 onValueChange={value => this.props.updateDistanceValue(value[0])}
                                 minimumTrackTintColor='#5858D0'
                                 thumbTintColor='#5858D0'
-                                minimumValue={1}
+                                minimumValue={0.5}
                                 maximumValue={20}
                             />
                         </View>

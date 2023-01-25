@@ -12,7 +12,7 @@ class NavBar extends React.Component {
     return (
       <View style={styles.container}>
         <Text style={styles.menuBarText}>Welcome to Drink Spinner!</Text>
-        <TouchableOpacity style={styles.menuPlacement} onPress={this.props.handleChangeDisplaySettings}>
+        <TouchableOpacity style={styles.menuPlacement} onPress={this.props.toggleMenu}>
             <Image source={Images.menuIcon} style={styles.menuIcon}/>
         </TouchableOpacity>
       </View>

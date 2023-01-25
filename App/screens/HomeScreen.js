@@ -1,17 +1,24 @@
 import NavBar from '../components/NavBar';
 import Settings from '../components/Settings';
 import Constants from 'expo-constants';
+import { PanGestureHandler } from 'react-native-gesture-handler';
 import React , {Component} from 'react';
 import {  
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions } from 'react-native';
-import WheelOfFortune from 'react-native-wheel-of-fortune';
+  Dimensions,
+  Animated } from 'react-native';
+// import WheelOfFortune from 'react-native-wheel-of-fortune';
+
+const { width } = Dimensions.get('screen');
+
+// Api calls
 import axios from 'axios';
 import * as Location from 'expo-location';
 import LoadingIcon from '../components/LoadingIcon';
+import Wheel from '../components/Wheel';
 
 const height = Dimensions.get('window').height;
 const GOOGLE_PLACES_API_BASE_URL = 'https://maps.googleapis.com/maps/api/place';
@@ -33,7 +40,7 @@ export default class HomeScreen extends Component {
       location: null,
       selectedLocations: [],
       wheelPrepped: false,
-      resultsExist: true,
+      resultsExist: true
     };
     this.child = null;
     this.updateIndex = this.updateIndex.bind(this)
@@ -41,7 +48,7 @@ export default class HomeScreen extends Component {
   }
 
   async componentDidMount() {
-    await this.fetchLocations()
+    await this.fetchLocations();
   }
 
   async fetchLocations() {
@@ -56,7 +63,6 @@ export default class HomeScreen extends Component {
     });
 
     //Create price point string
-    console.log('Here: ', this.state.selectedPricepoints);
     let tempString = '';
     let length = this.state.selectedPricepoints.length;
 
@@ -84,17 +90,18 @@ export default class HomeScreen extends Component {
     });
 
     //Call Google API
-    console.log(`${GOOGLE_PLACES_API_BASE_URL}/textsearch/json?query=bar${this.state.openNow ? '&opennow' : ''}${this.state.pricePointString}&location=${this.state.location.coords.latitude}%2C${this.state.location.coords.longitude}&radius=${1609.344*this.state.value}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`);
     axios.get(`${GOOGLE_PLACES_API_BASE_URL}/textsearch/json?query=bar${this.state.openNow ? '&opennow' : ''}${this.state.pricePointString}&location=${this.state.location.coords.latitude}%2C${this.state.location.coords.longitude}&radius=${1609.344*this.state.value}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`).then((response) => {
       
       if (response.data.results.length == 0){
-        console.log('No results with the search parameters!');
         this.setState({
           resultsExist: false
         });
       }
       else {
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 20; i++) {
+          if (response.data.results[i] == null){
+              break;
+          }
           this.setState({
             selectedLocations: this.state.selectedLocations.concat([response.data.results[i].name])
           });
@@ -115,10 +122,11 @@ export default class HomeScreen extends Component {
     this.child._onPress();
   }
 
-  handleChangeDisplaySettings = async () => {
+  toggleMenu = async () => {
     const currValue = this.state.displaySettings;
 
     if (currValue){
+
       this.setState({
         displaySettings: !currValue,
         wheelPrepped: false,
@@ -163,6 +171,16 @@ export default class HomeScreen extends Component {
       selectedPricepoints: tempArray
     })
   }
+
+
+  _onPanGestureEvent = Animated.event([{ nativeEvent: { x: this._touchX } }], {
+    useNativeDriver: true,
+  });
+
+  handleGesture = (evt) =>{
+    let{nativeEvent} = evt
+        console.log(nativeEvent)
+  }
   
   render() {
     const wheelOptions = {
@@ -171,12 +189,35 @@ export default class HomeScreen extends Component {
       borderWidth: 5,
       borderColor: 'black',
       innerRadius: 10,
+      outerHeight: 1000,
       duration: 3000,
       backgroundColor: 'transparent',
       textAngle: 'vertical',
       knobSource: require('../assets/knob.png'),
       onRef: ref => (this.child = ref),
     };
+
+    const segments = [
+      'better luck next time',
+      'won 70',
+      'won 10',
+      'better luck next time',
+      'won 2',
+      'won uber pass',
+      'better luck next time',
+      'won a voucher'
+    ]
+    const segColors = [
+      '#EE4040',
+      '#F0CF50',
+      '#815CD1',
+      '#3DA5E0',
+      '#34A24F',
+      '#F9AA1F',
+      '#EC3F3F',
+      '#FF9000'
+    ]
+
     if (this.state.wheelPrepped){
       return (
         <View style={styles.container}>
@@ -185,11 +226,11 @@ export default class HomeScreen extends Component {
           {/* Top bar of homescreen */}
           <NavBar
             displaySettings={this.state.displaySettings} 
-            handleChangeDisplaySettings={this.handleChangeDisplaySettings}></NavBar>
+            toggleMenu={this.toggleMenu}></NavBar>
 
           {/* Conditionally displayed settings menu */}
           {this.state.displaySettings && <Settings
-            handleChangeDisplaySettings={this.handleChangeDisplaySettings}
+            toggleMenu={this.toggleMenu}
             updateDistanceValue={this.updateDistanceValue}
             toggleIsOpenOption={this.toggleIsOpenOption}
             value={this.state.value}
@@ -198,22 +239,26 @@ export default class HomeScreen extends Component {
             updateIndex={this.updateIndex}
           />}
 
-          <View style={styles.wheelMenuItems}>
-          {/* The Wheel */}
-          <WheelOfFortune
-            options={wheelOptions}
-            getWinner={(value, index) => {
-              this.setState({winnerValue: value, winnerIndex: index});
-            }}
-          />
-          
+          {/* Change the Opening Brace to this to view pan activities: <PanGestureHandler onGestureEvent={this.handleGesture}>*/}
+            <PanGestureHandler>
+              <View>  
+                <Wheel></Wheel>
+              </View>
+            </PanGestureHandler>
+
+
+          {/*<View style={styles.centralMenuItems}>
           {!this.state.started && (
             <View style={styles.startButtonView}>
+              <PanGestureHandler
+                onGestureEvent={this.handleGesture}
+              >
               <TouchableOpacity
                 onPress={() => this.buttonPress()}
                 style={styles.startButton}>
                 <Text style={styles.startButtonText}>Spin Now!</Text>
               </TouchableOpacity>
+              </PanGestureHandler>
             </View>
           )}
           {this.state.winnerIndex != null && (
@@ -230,8 +275,8 @@ export default class HomeScreen extends Component {
                 <Text style={styles.tryAgainText}>TRY AGAIN</Text>
               </TouchableOpacity>
             </View>
-          )}
-          </View>
+              )}
+          </View>*/}
         </View>
       );
     }
@@ -240,11 +285,22 @@ export default class HomeScreen extends Component {
         <View style={styles.container}>
           <View style={styles.statusBar} />
 
+          {/* Conditionally displayed settings menu */}
+          {this.state.displaySettings && <Settings
+            toggleMenu={this.toggleMenu}
+            updateDistanceValue={this.updateDistanceValue}
+            toggleIsOpenOption={this.toggleIsOpenOption}
+            value={this.state.value}
+            openNow={this.state.openNow}
+            selectedPricepoints={this.state.selectedPricepoints}
+            updateIndex={this.updateIndex}
+          />}
+
           {/* Top bar of homescreen */}
           <NavBar
             displaySettings={this.state.displaySettings} 
-            handleChangeDisplaySettings={this.handleChangeDisplaySettings}></NavBar>
-          <View style={styles.wheelMenuItems}>
+            toggleMenu={this.toggleMenu}></NavBar>
+          <View style={styles.centralMenuItems}>
             <Text style={styles.winnerText}>No results with those criteria, please change and try again.</Text>
           </View>
         </View>
@@ -258,8 +314,8 @@ export default class HomeScreen extends Component {
           {/* Top bar of homescreen */}
           <NavBar
             displaySettings={this.state.displaySettings} 
-            handleChangeDisplaySettings={this.handleChangeDisplaySettings}></NavBar>
-          <View style={styles.wheelMenuItems}>
+            toggleMenu={this.toggleMenu}></NavBar>
+          <View style={styles.centralMenuItems}>
             <LoadingIcon></LoadingIcon>
           </View>
         </View>
@@ -278,10 +334,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     height: Constants.statusBarHeight
   },
-  wheelMenuItems: {
+  centralMenuItems: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  wheel: {
+    flex: 1,
+    marginBottom: '-300%'
   },
   startButtonView: {
     position: 'absolute',
@@ -315,5 +375,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
-  },
+  }
 });
