@@ -5,7 +5,7 @@ import Images from '../assets/Images';
 class NavBar extends React.Component {
 
     constructor(props) {
-        super(props);
+      super(props);
     }
 
   render() {
@@ -27,13 +27,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#5858D0',
     flexDirection: 'row', // row
     alignItems: 'center',
-    position: 'relative'
+    position: 'relative',
   },
   menuBarText: {
     color: 'white',
     textAlign: 'center',
     width: '100%',
-    fontSize: 20
+    fontSize: 17,
+    fontFamily: 'Menlo',
   },
   menuPlacement: {
     position: 'absolute',
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
   menuIcon: {
     tintColor: 'white',
     height: 20,
-    width: 20
+    width: 20,
   }
 });
 

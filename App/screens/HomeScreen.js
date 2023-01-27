@@ -106,6 +106,7 @@ export default class HomeScreen extends Component {
             selectedLocations: this.state.selectedLocations.concat([response.data.results[i].name])
           });
         }
+
         this.setState({
           wheelPrepped: true,
           resultsExist: true
@@ -172,11 +173,6 @@ export default class HomeScreen extends Component {
     })
   }
 
-
-  _onPanGestureEvent = Animated.event([{ nativeEvent: { x: this._touchX } }], {
-    useNativeDriver: true,
-  });
-
   handleGesture = (evt) =>{
     let{nativeEvent} = evt
         console.log(nativeEvent)
@@ -197,16 +193,6 @@ export default class HomeScreen extends Component {
       onRef: ref => (this.child = ref),
     };
 
-    const segments = [
-      'better luck next time',
-      'won 70',
-      'won 10',
-      'better luck next time',
-      'won 2',
-      'won uber pass',
-      'better luck next time',
-      'won a voucher'
-    ]
     const segColors = [
       '#EE4040',
       '#F0CF50',
@@ -239,10 +225,10 @@ export default class HomeScreen extends Component {
             updateIndex={this.updateIndex}
           />}
 
-          {/* Change the Opening Brace to this to view pan activities: <PanGestureHandler onGestureEvent={this.handleGesture}>*/}
+          {/* Change the Opening Brace to this to view pan console logging with internal function: <PanGestureHandler onGestureEvent={this.handleGesture}>*/}
             <PanGestureHandler>
               <View>  
-                <Wheel></Wheel>
+                <Wheel selectedLocations={this.state.selectedLocations} ></Wheel>
               </View>
             </PanGestureHandler>
 

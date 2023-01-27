@@ -21,38 +21,43 @@ const height = Dimensions.get('window').height;
 const numberOfSegments = 12;
 // const wheelSize = width * 0.95;
 const wheelSize = width * 1.5;
-const fontSize = 26;
+const fontSize = 11;
 const oneTurn = 360;
 const angleBySegment = oneTurn / numberOfSegments;
 const angleOffset = angleBySegment / 2;
 const knobFill = color({ hue: 'purple' });
 
-const makeWheel = () => {
-  const data = Array.from({ length: numberOfSegments }).fill(1);
-  const arcs = d3Shape.pie()(data);
-  const colors = color({
-    luminosity: 'dark',
-    count: numberOfSegments
-  });
-
-  return arcs.map((arc, index) => {
-    const instance = d3Shape
-      .arc()
-      .padAngle(0.01)
-      .outerRadius(width / 2)
-      .innerRadius(20);
-
-    return {
-      path: instance(arc),
-      color: colors[index],
-      value: Math.round(Math.random() * 10 + 1) * 200, //[200, 2200]
-      centroid: instance.centroid(arc)
-    };
-  });
-};
-
 class Wheel extends React.Component {
-  _wheelPaths = makeWheel();
+
+  constructor(props) {
+    super(props);
+  }
+
+  _makeWheel = () => {
+    const data = Array.from({ length: numberOfSegments }).fill(1);
+    const arcs = d3Shape.pie()(data);
+    const colors = color({
+      luminosity: 'dark',
+      count: numberOfSegments
+    });
+  
+    return arcs.map((arc, index) => {
+      const instance = d3Shape
+        .arc()
+        .padAngle(0.01)
+        .outerRadius(width / 2)
+        .innerRadius(20);
+  
+      return {
+        path: instance(arc),
+        color: colors[index],
+        value: this.props.selectedLocations[index], //Math.round(Math.random() * 10 + 1) * 200, //[200, 2200]
+        centroid: instance.centroid(arc)
+      };
+    });
+  };
+
+  _wheelPaths = this._makeWheel();
   _angle = new Animated.Value(0);
   angle = 0;
 
@@ -88,7 +93,7 @@ class Wheel extends React.Component {
   _onPan = ({ nativeEvent }) => {
     if (nativeEvent.state === State.END) {
       const { velocityX } = nativeEvent;
-      console.log('Angle: ', this._angle, ' Velocity: ', velocityX);
+      // console.log('Angle: ', this._angle, ' Velocity: ', velocityX);
 
       Animated.decay(this._angle, {
         velocity: velocityX / 1000,
@@ -130,8 +135,8 @@ class Wheel extends React.Component {
         style={{
           width: knobSize,
           height: knobSize * 2,
-          justifyContent: 'flex-end',
           zIndex: 1,
+          marginTop: height - 52 - Constants.statusBarHeight - wheelSize/1.4, //Subject to change later. Temporarily at the top of the wheel
           transform: [
             {
               rotate: YOLO.interpolate({
@@ -159,13 +164,13 @@ class Wheel extends React.Component {
 
   _renderWinner = () => {
     return (
-      <RNText style={styles.winnerText}>Winner is: {this.state.winner}</RNText>
+      <RNText style={styles.winnerText}>Go to {this.state.winner}!</RNText>
     );
   };
 
   _renderSvgWheel = () => {
     return (
-      <View>
+      <View style={styles.wheel}>
         <Animated.View
           style={{
             alignItems: 'center',
@@ -189,7 +194,26 @@ class Wheel extends React.Component {
             <G y={width / 2} x={width / 2}>
               {this._wheelPaths.map((arc, i) => {
                 const [x, y] = arc.centroid;
-                const number = arc.value.toString();
+                let venueName = '';
+
+                // Logic below is for trimming venue names cleanly so they fit on the wheel well with elipses
+                if(arc.value.length >= 14){
+                  if (arc.value[12] == ' ' || arc.value[13] == ' ' || arc.value[14] == ' '){
+                    let currChar;
+                    let index = 14;
+                    while(index >= 0 && currChar != ' '){
+                      currChar = arc.value[index];
+                      index--;
+                    }
+                    venueName = arc.value.toString().substr(0, index) + '...';
+                  }
+                  else {
+                    venueName = arc.value.toString().substr(0, 13) + '...';
+                  }
+                }
+                else {
+                  venueName = arc.value.toString();
+                }
 
                 return (
                   <G key={`arc-${i}`}>
@@ -200,19 +224,19 @@ class Wheel extends React.Component {
                     >
                       <Text
                         x={x}
-                        y={y - 70}
+                        y={y - 80}
                         fill="white"
                         textAnchor="middle"
                         fontSize={fontSize}
                       >
-                        {Array.from({ length: number.length }).map((_, j) => {
+                        {Array.from({ length: venueName.length }).map((_, j) => {
                           return (
                             <TSpan
                               x={x}
                               dy={fontSize}
                               key={`arc-${i}-slice-${j}`}
                             >
-                              {number.charAt(j)}
+                              {venueName.charAt(j)}
                             </TSpan>
                           );
                         })}
@@ -234,7 +258,8 @@ class Wheel extends React.Component {
         onHandlerStateChange={this._onPan}
         enabled={this.state.enabled}
       >
-        <Animated.View style={styles.container}>
+        <Animated.View style={styles.wheelAndRelated}>
+          {this._renderKnob()}
           {this._renderSvgWheel()}
           {this.state.finished && this.state.enabled && this._renderWinner()}
         </Animated.View>
@@ -244,9 +269,10 @@ class Wheel extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  wheel: {
     backgroundColor: '#fff',
     height: wheelSize,
+    position: 'absolute',
     justifyContent: 'center',
     marginTop: height - (wheelSize/2) - 52 - Constants.statusBarHeight //This value is calculated to offset the wheel the entire height downward, minus 52 from the heigh of the NavBar, minus half the wheelSize to expose half the wheel for spinning
   },
@@ -254,7 +280,11 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontFamily: 'Menlo',
     position: 'absolute',
-    bottom: 10
+    marginTop: '10%',
+    textAlign: 'center',
+  },
+  wheelAndRelated: {
+    alignItems: 'center',
   }
 });
 

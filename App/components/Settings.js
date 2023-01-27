@@ -28,8 +28,9 @@ export default class Settings extends Component {
                                 onValueChange={value => this.props.updateDistanceValue(value[0])}
                                 minimumTrackTintColor='#5858D0'
                                 thumbTintColor='#5858D0'
-                                minimumValue={0.5}
+                                minimumValue={0}
                                 maximumValue={20}
+                                step={1}
                             />
                         </View>
                         <View style={styles.priceRangeContainer}>
