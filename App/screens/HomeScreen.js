@@ -40,7 +40,9 @@ export default class HomeScreen extends Component {
       location: null,
       selectedLocations: [],
       wheelPrepped: false,
-      resultsExist: true
+      resultsExist: true,
+      saveSettingsValues: [],
+      inKm: false,
     };
     this.child = null;
     this.updateIndex = this.updateIndex.bind(this)
@@ -49,6 +51,12 @@ export default class HomeScreen extends Component {
 
   async componentDidMount() {
     await this.fetchLocations();
+  }
+
+  handleSettingsUpdate = () => {
+    const originalValues = {
+
+    }
   }
 
   async fetchLocations() {
@@ -90,9 +98,9 @@ export default class HomeScreen extends Component {
     });
 
     //Call Google API
-    axios.get(`${GOOGLE_PLACES_API_BASE_URL}/textsearch/json?query=bar${this.state.openNow ? '&opennow' : ''}${this.state.pricePointString}&location=${this.state.location.coords.latitude}%2C${this.state.location.coords.longitude}&radius=${1609.344*this.state.value}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`).then((response) => {
+    axios.get(`${GOOGLE_PLACES_API_BASE_URL}/textsearch/json?query=bar${this.state.openNow ? '&opennow' : ''}${this.state.pricePointString}&location=${this.state.location.coords.latitude}%2C${this.state.location.coords.longitude}&radius=${this.state.inKm ? this.state.value : 1609.344*this.state.value}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`).then((response) => {
       
-      if (response.data.results.length == 0){
+      if (response.data.results.length <= 1){
         this.setState({
           resultsExist: false
         });
@@ -125,28 +133,40 @@ export default class HomeScreen extends Component {
 
   toggleMenu = async () => {
     const currValue = this.state.displaySettings;
+    let captureSettings = [this.state.value, this.state.openNow].concat( this.state.selectedPricepoints);
 
     if (currValue){
-
-      this.setState({
-        displaySettings: !currValue,
-        wheelPrepped: false,
-        selectedLocations: []
-      });
-  
-      await this.fetchLocations();
+      if (this.state.saveSettingsValues.toString() !== captureSettings.toString()){ // Determines whether any settings were changed before re-fetching/rendeing the wheel
+        this.setState({
+          displaySettings: !currValue,
+          wheelPrepped: false,
+          selectedLocations: []
+        });
+    
+        await this.fetchLocations();
+      }
+      else {
+        this.setState({
+          displaySettings: !currValue,
+        });
+      }
     }
     else {
       this.setState({
         displaySettings: !currValue,
+        saveSettingsValues: captureSettings,
       });
     }
-    
   }
 
   toggleIsOpenOption = () => {
     const openNow = this.state.openNow;
     this.setState({openNow: !openNow})
+  }
+
+  toggleDistanceMeasurement = () => {
+    const inKm = this.state.inKm;
+    this.setState({inKm: !inKm})
   }
 
   updateDistanceValue (input) {
@@ -219,8 +239,10 @@ export default class HomeScreen extends Component {
             toggleMenu={this.toggleMenu}
             updateDistanceValue={this.updateDistanceValue}
             toggleIsOpenOption={this.toggleIsOpenOption}
+            toggleDistanceMeasurement={this.toggleDistanceMeasurement}
             value={this.state.value}
             openNow={this.state.openNow}
+            inKm={this.state.inKm}
             selectedPricepoints={this.state.selectedPricepoints}
             updateIndex={this.updateIndex}
           />}
@@ -276,8 +298,10 @@ export default class HomeScreen extends Component {
             toggleMenu={this.toggleMenu}
             updateDistanceValue={this.updateDistanceValue}
             toggleIsOpenOption={this.toggleIsOpenOption}
+            toggleDistanceMeasurement={this.toggleDistanceMeasurement}
             value={this.state.value}
             openNow={this.state.openNow}
+            inKm={this.state.inKm}
             selectedPricepoints={this.state.selectedPricepoints}
             updateIndex={this.updateIndex}
           />}

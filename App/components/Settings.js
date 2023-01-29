@@ -16,22 +16,34 @@ export default class Settings extends Component {
         return (
             <Modal transparent={true}>
                 <TouchableOpacity onPress={this.props.toggleMenu} activeOpacity='1.0' style={{backgroundColor: "#000000aa", flex:1}}>
-                    <View style={styles.settingsMenu}>
+                    <TouchableOpacity activeOpacity={1} style={styles.settingsMenu} >
                         <TouchableOpacity onPress={this.props.toggleMenu}>
                             <Image source={Images.closeIcon} style={styles.closeIcon}/>
                         </TouchableOpacity>
                         <Text style={styles.settingsHeader}>Settings</Text>
                         <View style={styles.sliderContainer}>
-                            <Text style={styles.menuText}>Distance Radius: {this.props.value} mi</Text>
+                            <Text style={styles.menuText}>Distance Radius: {this.props.value} {this.props.inKm ? 'km': 'mi'}</Text>
                             <Slider
                                 value={this.props.value}
                                 onValueChange={value => this.props.updateDistanceValue(value[0])}
                                 minimumTrackTintColor='#5858D0'
                                 thumbTintColor='#5858D0'
-                                minimumValue={0}
-                                maximumValue={20}
+                                minimumValue={1}
+                                maximumValue={this.props.inKm ? 30 : 20}
                                 step={1}
                             />
+                            <View style={styles.distanceMeasureToggleContainer}>
+                                <Text style={styles.distanceMeasureText}>mi</Text>
+                                <ToggleSwitch
+                                    isOn={this.props.inKm}
+                                    onColor='#5858D0'
+                                    offColor='#5858D0'
+                                    size="medium"
+                                    onToggle={this.props.toggleDistanceMeasurement}
+                                    style={{paddingLeft: '4%', paddingRight: '4%',}}
+                                />
+                                <Text style={styles.distanceMeasureText}>km</Text>
+                            </View>
                         </View>
                         <View style={styles.priceRangeContainer}>
                             <Text style={[styles.menuText, {paddingBottom: '5%'}]}>Price Range</Text>
@@ -56,7 +68,7 @@ export default class Settings extends Component {
                                 style={{paddingLeft: '4%'}}
                             />
                         </View>  
-                    </View>
+                    </TouchableOpacity>
                 </TouchableOpacity>
             </Modal>
         ) 
@@ -80,6 +92,10 @@ const styles = StyleSheet.create({
         color: '#5858D0', 
         fontSize: 26
     },
+    distanceMeasureText: {
+        color: '#5858D0', 
+        fontSize: 16
+    },
     closeIcon: {
         alignSelf: 'flex-end',
         height: 15,
@@ -93,6 +109,11 @@ const styles = StyleSheet.create({
         margin: '5%',
         flexDirection: 'row',
         alignItems: 'center'
+    },
+    distanceMeasureToggleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
     },
     priceRangeContainer: {
         margin: '5%',

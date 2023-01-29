@@ -18,29 +18,50 @@ import { snap } from '@popmotion/popcorn';
 const { width } = Dimensions.get('screen');
 const height = Dimensions.get('window').height;
 
-const numberOfSegments = 12;
 // const wheelSize = width * 0.95;
 const wheelSize = width * 1.5;
 const fontSize = 11;
 const oneTurn = 360;
-const angleBySegment = oneTurn / numberOfSegments;
-const angleOffset = angleBySegment / 2;
-const knobFill = color({ hue: 'purple' });
+const knobFill = color({luminosity: 'light', hue: 'purple' });
 
 class Wheel extends React.Component {
-
+  state = {};
+  _wheelPaths;
+  
   constructor(props) {
     super(props);
+    let selectedLocationsCount = this.props.selectedLocations.length;
+
+    this.state = {
+      enabled: true,
+      finished: false,
+      winner: null,
+      numberOfSegments: selectedLocationsCount,
+      angleBySegment: 360 / selectedLocationsCount,
+      angleOffset: (360/selectedLocationsCount)/2,
+    };
+
+    this._wheelPaths = this._makeWheel();
   }
 
   _makeWheel = () => {
-    const data = Array.from({ length: numberOfSegments }).fill(1);
+
+    const data = Array.from({ length: this.state.numberOfSegments }).fill(1);
     const arcs = d3Shape.pie()(data);
-    const colors = color({
-      luminosity: 'dark',
-      count: numberOfSegments
-    });
-  
+
+    let colors = [];
+    let hueIterator = 0;
+    const hueAlternation = ['blue', 'red', 'green', 'purple', 'orange', 'pink' ]
+
+    while(colors.length <= this.state.numberOfSegments){
+      colors = colors.concat(color({
+        luminosity: 'dark',
+        hue: hueAlternation[hueIterator],
+      }))
+      hueIterator++;
+      if (hueIterator > 5){hueIterator = 0;}
+    }
+
     return arcs.map((arc, index) => {
       const instance = d3Shape
         .arc()
@@ -54,18 +75,12 @@ class Wheel extends React.Component {
         value: this.props.selectedLocations[index], //Math.round(Math.random() * 10 + 1) * 200, //[200, 2200]
         centroid: instance.centroid(arc)
       };
+      
     });
   };
 
-  _wheelPaths = this._makeWheel();
   _angle = new Animated.Value(0);
   angle = 0;
-
-  state = {
-    enabled: true,
-    finished: false,
-    winner: null
-  };
 
   componentDidMount() {
     this._angle.addListener(event => {
@@ -84,16 +99,15 @@ class Wheel extends React.Component {
     const deg = Math.abs(Math.round(this.angle % oneTurn));
     // wheel turning counterclockwise
     if(this.angle < 0) {
-      return Math.floor(deg / angleBySegment);
+      return Math.floor(deg / this.state.angleBySegment);
     }
     // wheel turning clockwise
-    return (numberOfSegments - Math.floor(deg / angleBySegment)) % numberOfSegments;
+    return (this.state.numberOfSegments - Math.floor(deg / this.state.angleBySegment)) % this.state.numberOfSegments;
   };
 
   _onPan = ({ nativeEvent }) => {
     if (nativeEvent.state === State.END) {
       const { velocityX } = nativeEvent;
-      // console.log('Angle: ', this._angle, ' Velocity: ', velocityX);
 
       Animated.decay(this._angle, {
         velocity: velocityX / 1000,
@@ -101,7 +115,7 @@ class Wheel extends React.Component {
         useNativeDriver: true
       }).start(() => {
         this._angle.setValue(this.angle % oneTurn);
-        const snapTo = snap(oneTurn / numberOfSegments);
+        const snapTo = snap(oneTurn / this.state.numberOfSegments);
         Animated.timing(this._angle, {
           toValue: snapTo(this.angle),
           duration: 300,
@@ -124,8 +138,8 @@ class Wheel extends React.Component {
     // [0, numberOfSegments]
     const YOLO = Animated.modulo(
       Animated.divide(
-        Animated.modulo(Animated.subtract(this._angle, angleOffset), oneTurn),
-        new Animated.Value(angleBySegment)
+        Animated.modulo(Animated.subtract(this._angle, this.state.angleOffset), oneTurn),
+        new Animated.Value(this.state.angleBySegment)
       ),
       1
     );
@@ -169,6 +183,7 @@ class Wheel extends React.Component {
   };
 
   _renderSvgWheel = () => {
+
     return (
       <View style={styles.wheel}>
         <Animated.View
@@ -189,7 +204,7 @@ class Wheel extends React.Component {
             width={wheelSize}
             height={wheelSize}
             viewBox={`0 0 ${width} ${width}`}
-            style={{ transform: [{ rotate: `-${angleOffset}deg` }] }}
+            style={{ transform: [{ rotate: `-${this.state.angleOffset}deg` }] }}
           >
             <G y={width / 2} x={width / 2}>
               {this._wheelPaths.map((arc, i) => {
@@ -197,7 +212,7 @@ class Wheel extends React.Component {
                 let venueName = '';
 
                 // Logic below is for trimming venue names cleanly so they fit on the wheel well with elipses
-                if(arc.value.length >= 14){
+                if(arc.value && arc.value.length >= 14){
                   if (arc.value[12] == ' ' || arc.value[13] == ' ' || arc.value[14] == ' '){
                     let currChar;
                     let index = 14;
@@ -219,7 +234,7 @@ class Wheel extends React.Component {
                   <G key={`arc-${i}`}>
                     <Path d={arc.path} fill={arc.color} />
                     <G
-                      rotation={(i * oneTurn) / numberOfSegments + angleOffset}
+                      rotation={(i * oneTurn) / this.state.numberOfSegments + this.state.angleOffset}
                       origin={`${x}, ${y}`}
                     >
                       <Text
@@ -277,10 +292,10 @@ const styles = StyleSheet.create({
     marginTop: height - (wheelSize/2) - 52 - Constants.statusBarHeight //This value is calculated to offset the wheel the entire height downward, minus 52 from the heigh of the NavBar, minus half the wheelSize to expose half the wheel for spinning
   },
   winnerText: {
-    fontSize: 32,
+    fontSize: 40,
     fontFamily: 'Menlo',
     position: 'absolute',
-    marginTop: '10%',
+    margin: '10%',
     textAlign: 'center',
   },
   wheelAndRelated: {
