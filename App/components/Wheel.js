@@ -150,7 +150,7 @@ class Wheel extends React.Component {
           width: knobSize,
           height: knobSize * 2,
           zIndex: 1,
-          marginTop: height - 52 - Constants.statusBarHeight - wheelSize/1.4, //Subject to change later. Temporarily at the top of the wheel
+          marginTop: height - 52 - Constants.statusBarHeight - wheelSize/1.4 - 50, //Subject to change later. Temporarily at the top of the wheel
           transform: [
             {
               rotate: YOLO.interpolate({
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     height: wheelSize,
     position: 'absolute',
     justifyContent: 'center',
-    marginTop: height - (wheelSize/2) - 52 - Constants.statusBarHeight //This value is calculated to offset the wheel the entire height downward, minus 52 from the heigh of the NavBar, minus half the wheelSize to expose half the wheel for spinning
+    marginTop: height - (wheelSize/2) - 52 - Constants.statusBarHeight - 50 //This value is calculated to offset the wheel the entire height downward, minus 52 from the heigh of the NavBar, minus half the wheelSize to expose half the wheel for spinning
   },
   winnerText: {
     fontSize: 40,

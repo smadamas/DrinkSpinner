@@ -1,5 +1,6 @@
 import NavBar from '../components/NavBar';
 import Settings from '../components/Settings';
+import VenueToggle from '../components/VenueToggle';
 import Constants from 'expo-constants';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import React , {Component} from 'react';
@@ -43,6 +44,8 @@ export default class HomeScreen extends Component {
       resultsExist: true,
       saveSettingsValues: [],
       inKm: false,
+      showVenues: false,
+      wheelSize: width * 1.5,
     };
     this.child = null;
     this.updateIndex = this.updateIndex.bind(this)
@@ -130,6 +133,13 @@ export default class HomeScreen extends Component {
     });
     this.child._onPress();
   }
+
+  buttonClickedHandler = () => {
+    console.log('You have been clicked a button!');
+    this.setState({
+      showVenues: true,
+    });
+  };
 
   toggleMenu = async () => {
     const currValue = this.state.displaySettings;
@@ -247,10 +257,24 @@ export default class HomeScreen extends Component {
             updateIndex={this.updateIndex}
           />}
 
+          {/* Conditionally displayed vanues menu }
+          {this.state.showVenues && <VenueToggle
+            venues={this.state.selectedLocations}
+          />} */}
+
+          <TouchableOpacity
+            onPress={this.buttonClickedHandler}
+            style={styles.button}>
+            <Text style={styles.startButtonText}>!</Text>
+        </TouchableOpacity>
+
+
           {/* Change the Opening Brace to this to view pan console logging with internal function: <PanGestureHandler onGestureEvent={this.handleGesture}>*/}
             <PanGestureHandler>
               <View>  
-                <Wheel selectedLocations={this.state.selectedLocations} ></Wheel>
+                <Wheel 
+                  selectedLocations={this.state.selectedLocations}
+                ></Wheel>
               </View>
             </PanGestureHandler>
 
@@ -362,7 +386,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   startButtonText: {
-    fontSize: 50,
+    fontSize: 40,
     color: '#fff',
     fontWeight: 'bold',
   },
@@ -385,5 +409,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
-  }
+  },
+  button: {
+    width: 50,
+    height: 50,
+    color: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 100,
+    backgroundColor: '#5858D0',
+  },
 });
