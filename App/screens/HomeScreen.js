@@ -29,7 +29,8 @@ export default class HomeScreen extends Component {
     super(props);
 
     this.state = {
-      winnerValue: null,
+      winnerName: "",
+      winnerSet: false,
       winnerIndex: null,
       started: false,
       displaySettings: false,
@@ -50,6 +51,9 @@ export default class HomeScreen extends Component {
     this.child = null;
     this.updateIndex = this.updateIndex.bind(this)
     this.updateDistanceValue = this.updateDistanceValue.bind(this)
+    this.setWinnerText = this.setWinnerText.bind(this)
+    this.toggleWinner = this.toggleWinner.bind(this)
+
   }
 
   async componentDidMount() {
@@ -135,7 +139,6 @@ export default class HomeScreen extends Component {
   }
 
   buttonClickedHandler = () => {
-    console.log('You have been clicked a button!');
     this.setState({
       showVenues: true,
     });
@@ -150,6 +153,7 @@ export default class HomeScreen extends Component {
         this.setState({
           displaySettings: !currValue,
           wheelPrepped: false,
+          winnerSet: false,
           selectedLocations: []
         });
     
@@ -203,9 +207,20 @@ export default class HomeScreen extends Component {
     })
   }
 
-  handleGesture = (evt) =>{
+  handleGesture = (evt) => {
     let{nativeEvent} = evt
         console.log(nativeEvent)
+  }
+
+  setWinnerText = (winner) => {
+    console.log("new winner: ", winner);
+    this.setState({winnerName: winner})
+  }
+
+  toggleWinner() {
+    const newWinnerToggle = !this.state.winnerSet;
+    console.log("text toggle currently: ", newWinnerToggle);
+    this.setState({winnerSet: newWinnerToggle})
   }
   
   render() {
@@ -236,7 +251,7 @@ export default class HomeScreen extends Component {
 
     if (this.state.wheelPrepped){
       return (
-        <View style={styles.container}>
+        <View style={styles.fullScreen}>
           <View style={styles.statusBar} />
 
           {/* Top bar of homescreen */}
@@ -257,64 +272,37 @@ export default class HomeScreen extends Component {
             updateIndex={this.updateIndex}
           />}
 
-          {/* Conditionally displayed vanues menu }
+          {/* Conditionally displayed vanues menu */}
           {this.state.showVenues && <VenueToggle
             venues={this.state.selectedLocations}
-          />} */}
+          />}
 
-          <TouchableOpacity
-            onPress={this.buttonClickedHandler}
-            style={styles.button}>
-            <Text style={styles.startButtonText}>!</Text>
-        </TouchableOpacity>
+          {this.state.winnerName != "" && <View style={styles.winnerView}><Text style={styles.winnerText}>Go to {this.state.winnerName}!</Text></View>}
 
+          <View style={styles.wheelMenu}>
+            <TouchableOpacity
+              onPress={this.buttonClickedHandler}
+              style={styles.button}>
+              <Text style={styles.startButtonText}>!</Text>
+            </TouchableOpacity>
 
-          {/* Change the Opening Brace to this to view pan console logging with internal function: <PanGestureHandler onGestureEvent={this.handleGesture}>*/}
+            {/* Change the Opening Brace to this to view pan console logging with internal function: <PanGestureHandler onGestureEvent={this.handleGesture}>*/}
             <PanGestureHandler>
               <View>  
                 <Wheel 
                   selectedLocations={this.state.selectedLocations}
+                  setWinnerText={this.setWinnerText}
+                  toggleWinner={this.toggleWinner}
                 ></Wheel>
               </View>
             </PanGestureHandler>
-
-
-          {/*<View style={styles.centralMenuItems}>
-          {!this.state.started && (
-            <View style={styles.startButtonView}>
-              <PanGestureHandler
-                onGestureEvent={this.handleGesture}
-              >
-              <TouchableOpacity
-                onPress={() => this.buttonPress()}
-                style={styles.startButton}>
-                <Text style={styles.startButtonText}>Spin Now!</Text>
-              </TouchableOpacity>
-              </PanGestureHandler>
-            </View>
-          )}
-          {this.state.winnerIndex != null && (
-            <View style={styles.winnerView}>
-              <Text style={styles.winnerText}>
-                Go to {this.state.selectedLocations[this.state.winnerIndex]}!
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  this.setState({winnerIndex: null});
-                  this.child._tryAgain();
-                }}
-                style={styles.tryAgainButton}>
-                <Text style={styles.tryAgainText}>TRY AGAIN</Text>
-              </TouchableOpacity>
-            </View>
-              )}
-          </View>*/}
+          </View>
         </View>
       );
     }
     else if (!this.state.resultsExist){
       return (
-        <View style={styles.container}>
+        <View style={styles.fullScreen}>
           <View style={styles.statusBar} />
 
           {/* Conditionally displayed settings menu */}
@@ -342,7 +330,7 @@ export default class HomeScreen extends Component {
     }
     else {
       return (
-        <View style={styles.container}>
+        <View style={styles.fullScreen}>
           <View style={styles.statusBar} />
 
           {/* Top bar of homescreen */}
@@ -354,13 +342,12 @@ export default class HomeScreen extends Component {
           </View>
         </View>
       );
-    }
-        
+    }    
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
+  fullScreen: {
     flex: 1,
     backgroundColor: 'white',
   },
@@ -372,10 +359,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  wheel: {
-    flex: 1,
-    marginBottom: '-300%'
   },
   startButtonView: {
     position: 'absolute',
@@ -391,15 +374,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   winnerView: {
-    position: 'absolute',
     justifyContent: 'center',
+    width: width,
     alignItems: 'center',
+    position: 'absolute',
+    marginTop: '35%',
   },
   tryAgainButton: {
     padding: 10,
   },
   winnerText: {
-    fontSize: 30,
+    fontSize: 40,
+    fontFamily: 'Menlo',
+    textAlign: 'center',
+    margin: '10%',
   },
   tryAgainButton: {
     padding: 5,
@@ -414,9 +402,17 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     color: 'white',
+    backgroundColor: 'purple',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 100,
     backgroundColor: '#5858D0',
+    position: 'absolute',
+    marginLeft: 30,
+    marginTop: 30,
+    zIndex: 1,
+  },
+  wheelMenu: {
+    marginTop: height - ((width * 1.5)/2) - 52 - Constants.statusBarHeight - (160-35) //To position the wheel halfway off the bottom of the screen, have had to use known constants to calculate distance from the top of the screen in order are height of screen, half of wheel size, navBar height, statusBar height, knobHeight
   },
 });

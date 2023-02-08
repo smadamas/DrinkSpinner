@@ -25,7 +25,7 @@ export default class Settings extends Component {
                         <TouchableOpacity onPress={this.props.toggleMenu}>
                             <Image source={Images.closeIcon} style={styles.closeIcon}/>
                         </TouchableOpacity>
-                        <Text style={styles.settingsHeader}>Toggle Venues for Wheel</Text>
+                        <Text style={styles.settingsHeader}>Wheel Inclusions</Text>
                         <RadioButtonRN
                             data={data}
                             selectedBtn={(e) => console.log(e)}
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
         borderRadius: 14
     },
     settingsHeader: {
-        fontSize: 50,
+        fontSize: 35,
         color: '#5858D0',
         marginLeft: '5%'
     },

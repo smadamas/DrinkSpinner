@@ -20,9 +20,11 @@ const height = Dimensions.get('window').height;
 
 // const wheelSize = width * 0.95;
 const wheelSize = width * 1.5;
+const knobSize = 80;
 const fontSize = 11;
 const oneTurn = 360;
 const knobFill = color({luminosity: 'light', hue: 'purple' });
+const neutral = null;
 
 class Wheel extends React.Component {
   state = {};
@@ -36,6 +38,7 @@ class Wheel extends React.Component {
       enabled: true,
       finished: false,
       winner: null,
+      winnerSet: false,
       numberOfSegments: selectedLocationsCount,
       angleBySegment: 360 / selectedLocationsCount,
       angleOffset: (360/selectedLocationsCount)/2,
@@ -108,6 +111,7 @@ class Wheel extends React.Component {
   _onPan = ({ nativeEvent }) => {
     if (nativeEvent.state === State.END) {
       const { velocityX } = nativeEvent;
+      this.props.setWinnerText("");
 
       Animated.decay(this._angle, {
         velocity: velocityX / 1000,
@@ -127,6 +131,7 @@ class Wheel extends React.Component {
             finished: true,
             winner: this._wheelPaths[winnerIndex].value
           });
+          this.props.setWinnerText(this._wheelPaths[winnerIndex].value);
         });
         // do something here;
       });
@@ -134,7 +139,6 @@ class Wheel extends React.Component {
   };
 
   _renderKnob = () => {
-    const knobSize = 80;
     // [0, numberOfSegments]
     const YOLO = Animated.modulo(
       Animated.divide(
@@ -150,7 +154,7 @@ class Wheel extends React.Component {
           width: knobSize,
           height: knobSize * 2,
           zIndex: 1,
-          marginTop: height - 52 - Constants.statusBarHeight - wheelSize/1.4 - 50, //Subject to change later. Temporarily at the top of the wheel
+          // marginTop: height - 52 - Constants.statusBarHeight - wheelSize/1.4 - 50, //Subject to change later. Temporarily at the top of the wheel
           transform: [
             {
               rotate: YOLO.interpolate({
@@ -181,6 +185,16 @@ class Wheel extends React.Component {
       <RNText style={styles.winnerText}>Go to {this.state.winner}!</RNText>
     );
   };
+
+  setWinner = () => {
+    if (this.state.winnerSet == false){
+      this.setState({
+        winnerSet: true,
+      });
+      this.props.toggleWinner;
+      this.props.setWinnerText(this.state.winner);
+    }
+  }
 
   _renderSvgWheel = () => {
 
@@ -276,7 +290,6 @@ class Wheel extends React.Component {
         <Animated.View style={styles.wheelAndRelated}>
           {this._renderKnob()}
           {this._renderSvgWheel()}
-          {this.state.finished && this.state.enabled && this._renderWinner()}
         </Animated.View>
       </PanGestureHandler>
     );
@@ -285,11 +298,9 @@ class Wheel extends React.Component {
 
 const styles = StyleSheet.create({
   wheel: {
-    backgroundColor: '#fff',
     height: wheelSize,
     position: 'absolute',
-    justifyContent: 'center',
-    marginTop: height - (wheelSize/2) - 52 - Constants.statusBarHeight - 50 //This value is calculated to offset the wheel the entire height downward, minus 52 from the heigh of the NavBar, minus half the wheelSize to expose half the wheel for spinning
+    marginTop: (knobSize*2) - 35,
   },
   winnerText: {
     fontSize: 40,
