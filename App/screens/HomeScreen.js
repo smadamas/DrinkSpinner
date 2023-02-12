@@ -198,6 +198,7 @@ export default class HomeScreen extends Component {
 
   toggleDistanceMeasurement = () => {
     const inKm = this.state.inKm;
+    this.state.value > 20 && inKm == true ? this.setState({inKm: !inKm, value: 20}) : this.setState({inKm: !inKm})
     this.setState({inKm: !inKm})
   }
 
