@@ -41,29 +41,27 @@ export default class HomeScreen extends Component {
       venues: [],
       location: null,
       selectedLocations: [],
+      selectedLocationsToggle: [],
       wheelPrepped: false,
       resultsExist: true,
       saveSettingsValues: [],
       inKm: false,
       showVenues: false,
       wheelSize: width * 1.5,
+      displayVenueMenu: false,
+      updatedVenues: [],
     };
     this.child = null;
     this.updateIndex = this.updateIndex.bind(this)
     this.updateDistanceValue = this.updateDistanceValue.bind(this)
     this.setWinnerText = this.setWinnerText.bind(this)
     this.toggleWinner = this.toggleWinner.bind(this)
+    this.toggleVenueMenu = this.toggleVenueMenu.bind(this)
 
   }
 
   async componentDidMount() {
     await this.fetchLocations();
-  }
-
-  handleSettingsUpdate = () => {
-    const originalValues = {
-
-    }
   }
 
   async fetchLocations() {
@@ -118,7 +116,8 @@ export default class HomeScreen extends Component {
               break;
           }
           this.setState({
-            selectedLocations: this.state.selectedLocations.concat([response.data.results[i].name])
+            selectedLocations: this.state.selectedLocations.concat([response.data.results[i].name]),
+            selectedLocationsToggle: this.state.selectedLocationsToggle.concat([true]),
           });
         }
 
@@ -139,8 +138,9 @@ export default class HomeScreen extends Component {
   }
 
   buttonClickedHandler = () => {
+    const currValue = this.state.displayVenueMenu;
     this.setState({
-      showVenues: true,
+      displayVenueMenu: !currValue,
     });
   };
 
@@ -154,7 +154,8 @@ export default class HomeScreen extends Component {
           displaySettings: !currValue,
           wheelPrepped: false,
           winnerSet: false,
-          selectedLocations: []
+          selectedLocations: [],
+          selectedLocationsToggle: [],
         });
     
         await this.fetchLocations();
@@ -171,6 +172,23 @@ export default class HomeScreen extends Component {
         saveSettingsValues: captureSettings,
       });
     }
+  }
+
+  toggleVenueMenu = async (newVenues) => {
+
+    const dispVenue = this.state.displayVenueMenu;
+
+    let updatedSelectedLocationsToggles = [];
+    for(let i = 0; i < newVenues.length; i++){
+      updatedSelectedLocationsToggles = updatedSelectedLocationsToggles.concat([newVenues[i].isChecked]);
+    }
+
+    this.setState({
+      displayVenueMenu: !dispVenue,
+      selectedLocationsToggle: updatedSelectedLocationsToggles,
+      wheelPrepped: true,
+    })
+
   }
 
   toggleIsOpenOption = () => {
@@ -213,13 +231,13 @@ export default class HomeScreen extends Component {
   }
 
   setWinnerText = (winner) => {
-    console.log("new winner: ", winner);
+    // console.log("new winner: ", winner);
     this.setState({winnerName: winner})
   }
 
   toggleWinner() {
     const newWinnerToggle = !this.state.winnerSet;
-    console.log("text toggle currently: ", newWinnerToggle);
+    // console.log("text toggle currently: ", newWinnerToggle);
     this.setState({winnerSet: newWinnerToggle})
   }
   
@@ -272,9 +290,11 @@ export default class HomeScreen extends Component {
             updateIndex={this.updateIndex}
           />}
 
-          {/* Conditionally displayed vanues menu */}
-          {this.state.showVenues && <VenueToggle
+          {/* Conditionally displayed venues menu */}
+          {this.state.displayVenueMenu && <VenueToggle
             venues={this.state.selectedLocations}
+            venueToggles={this.state.selectedLocationsToggle}
+            toggleVenueMenu={this.toggleVenueMenu}
           />}
 
           {this.state.winnerName != "" && <View style={styles.winnerView}><Text style={styles.winnerText}>Go to {this.state.winnerName}!</Text></View>}
@@ -288,9 +308,10 @@ export default class HomeScreen extends Component {
 
             {/* Change the Opening Brace to this to view pan console logging with internal function: <PanGestureHandler onGestureEvent={this.handleGesture}>*/}
             <PanGestureHandler>
-              <View>  
+              <View key={this.state.selectedLocationsToggle}>  
                 <Wheel 
                   selectedLocations={this.state.selectedLocations}
+                  venueToggles={this.state.selectedLocationsToggle}
                   setWinnerText={this.setWinnerText}
                   toggleWinner={this.toggleWinner}
                 ></Wheel>

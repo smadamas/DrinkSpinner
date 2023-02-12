@@ -32,8 +32,14 @@ class Wheel extends React.Component {
   
   constructor(props) {
     super(props);
-    let selectedLocationsCount = this.props.selectedLocations.length;
 
+    // I don't think this section will ever be used because nothing can be untoggled on initial component load. this.props.selectedLocations can probably be passed in as wheelLabels
+    let wheelLabels = [];
+    for (let i = 0; i < this.props.selectedLocations.length; i++){
+      if (this.props.venueToggles[i]){wheelLabels = wheelLabels.concat([this.props.selectedLocations[i]])} //this section might need cleaning or elimination later
+    }
+    let selectedLocationsCount = wheelLabels.length; 
+    
     this.state = {
       enabled: true,
       finished: false,
@@ -42,9 +48,32 @@ class Wheel extends React.Component {
       numberOfSegments: selectedLocationsCount,
       angleBySegment: 360 / selectedLocationsCount,
       angleOffset: (360/selectedLocationsCount)/2,
+      wheelLabels: wheelLabels
     };
 
     this._wheelPaths = this._makeWheel();
+  }
+
+  componentDidUpdate(prevProps) {
+
+    if (prevProps.venueToggles !== this.props.venueToggles){
+      let wheelLabels = [];
+      for (let i = 0; i < this.props.selectedLocations.length; i++){
+        if (this.props.venueToggles[i] == true){
+          wheelLabels = wheelLabels.concat([this.props.selectedLocations[i]])
+        }
+      }
+
+      this.setState({
+        wheelLabels: wheelLabels,
+        numberOfSegments: wheelLabels.length,
+        angleBySegment: 360 / wheelLabels.length,
+        angleOffset: (360/wheelLabels.length)/2,
+      },
+        () => {this._wheelPaths = this._makeWheel();}
+      );
+ 
+    }
   }
 
   _makeWheel = () => {
@@ -75,7 +104,7 @@ class Wheel extends React.Component {
       return {
         path: instance(arc),
         color: colors[index],
-        value: this.props.selectedLocations[index], //Math.round(Math.random() * 10 + 1) * 200, //[200, 2200]
+        value: this.state.wheelLabels[index], //Math.round(Math.random() * 10 + 1) * 200, //[200, 2200]
         centroid: instance.centroid(arc)
       };
       
@@ -197,7 +226,6 @@ class Wheel extends React.Component {
   }
 
   _renderSvgWheel = () => {
-
     return (
       <View style={styles.wheel}>
         <Animated.View
@@ -234,14 +262,14 @@ class Wheel extends React.Component {
                       currChar = arc.value[index];
                       index--;
                     }
-                    venueName = arc.value.toString().substr(0, index) + '...';
+                    venueName = arc.value.substr(0, index) + '...';
                   }
                   else {
-                    venueName = arc.value.toString().substr(0, 13) + '...';
+                    venueName = arc.value.substr(0, 13) + '...';
                   }
                 }
                 else {
-                  venueName = arc.value.toString();
+                  venueName = arc.value;
                 }
 
                 return (
@@ -286,6 +314,7 @@ class Wheel extends React.Component {
       <PanGestureHandler
         onHandlerStateChange={this._onPan}
         enabled={this.state.enabled}
+        key={this.props.venueToggles}
       >
         <Animated.View style={styles.wheelAndRelated}>
           {this._renderKnob()}
