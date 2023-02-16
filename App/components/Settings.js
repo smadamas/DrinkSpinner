@@ -17,7 +17,7 @@ export default class Settings extends Component {
             <Modal transparent={true}>
                 <TouchableOpacity onPress={this.props.toggleMenu} activeOpacity='1.0' style={{backgroundColor: "#000000aa", flex:1}}>
                     <TouchableOpacity activeOpacity={1} style={styles.settingsMenu} >
-                        <TouchableOpacity onPress={this.props.toggleMenu}>
+                        <TouchableOpacity onPress={this.props.toggleMenu} style={styles.closeIconContainer}>
                             <Image source={Images.closeIcon} style={styles.closeIcon}/>
                         </TouchableOpacity>
                         <Text style={styles.settingsHeader}>Settings</Text>
@@ -80,8 +80,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'white', 
         margin: '5%',
         marginTop: '15%', 
-        padding: '4%', 
-        borderRadius: 14
+        padding: '5%', 
+        borderRadius: 14,
+        position: 'relative'
     },
     settingsHeader: {
         fontSize: 50,
@@ -96,11 +97,22 @@ const styles = StyleSheet.create({
         color: '#5858D0', 
         fontSize: 16
     },
-    closeIcon: {
+    closeIconContainer: {
+        height: 35,
+        width: 35,
+        top: '2%',
+        right: '2%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'absolute',
         alignSelf: 'flex-end',
+        zIndex: 99,
+    },
+    closeIcon: {
         height: 15,
         width: 15,
-        tintColor: '#5858D0'
+        tintColor: '#5858D0',
+        zIndex: 1,
     },
     sliderContainer: {
         margin: '5%'

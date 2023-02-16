@@ -38,6 +38,43 @@ export default class VenueToggle extends Component {
         });
     };
 
+    shuffleSelections = () => {
+        let temp;
+
+        if (this.state.data.length < 6){
+            temp = this.state.data.map((product) => {
+                if (id === product.id) {
+                    return { ...product, isChecked: true };
+                }
+                return product;
+            });
+        }
+        else {
+            let storeIndices = [];
+            let newIndex;
+            for (let i = 0; i < 5; i++){
+                do {
+                    newIndex = Math.floor(Math.random() * (this.state.data.length - 1)) + 1;
+                }
+                while (storeIndices.includes(newIndex));
+                storeIndices = storeIndices.concat([newIndex]);
+            }
+
+            temp = this.state.data.map((product) => {
+                if (storeIndices.includes(product.id)) {
+                    return { ...product, isChecked: true };
+                }
+                else {
+                    return { ...product, isChecked: false };
+                }
+            });
+        }
+
+        this.setState({
+            data: temp
+        });
+    }
+
     renderFlatList = (renderData) => {
         return (
             <FlatList
@@ -75,6 +112,9 @@ export default class VenueToggle extends Component {
                             <Image source={Images.closeIcon} style={styles.closeIcon}/>
                         </TouchableOpacity>
                         <Text style={styles.settingsHeader}>Wheel Inclusions</Text>
+                        <TouchableOpacity onPress={this.shuffleSelections} style={styles.button}>
+                            <Image source={Images.shuffleIcon} style={styles.shuffleIcon}/>
+                        </TouchableOpacity>
                         <View style={styles.container}>
                             <View style={{ flex: 1 }}>
                                 {this.renderFlatList(this.state.data)}
@@ -132,8 +172,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         elevation: 5,
     },
+    shuffleIcon: {
+        height: 20,
+        width: 20,
+        tintColor: 'white'
+    },
     text: {
         textAlign: 'center',
         fontWeight: 'bold',
+    },
+    button: {
+        width: 30,
+        height: 30,
+        backgroundColor: 'purple',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 100,
+        backgroundColor: '#5858D0',
+        zIndex: 1,
+        alignSelf: 'flex-end',
     },
 })

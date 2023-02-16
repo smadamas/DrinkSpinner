@@ -39,11 +39,18 @@ const styles = StyleSheet.create({
   menuPlacement: {
     position: 'absolute',
     right: '5%',
+    height: 30,
+    width: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 99,
   },
   menuIcon: {
     tintColor: 'white',
     height: 20,
     width: 20,
+    zIndex: 1,
+
   }
 });
 

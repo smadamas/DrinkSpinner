@@ -72,7 +72,6 @@ class Wheel extends React.Component {
       },
         () => {this._wheelPaths = this._makeWheel();}
       );
- 
     }
   }
 
