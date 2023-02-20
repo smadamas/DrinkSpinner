@@ -4,11 +4,15 @@ import VenueToggle from '../components/VenueToggle';
 import Constants from 'expo-constants';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import React , {Component} from 'react';
+import Images from '../assets/Images';
+import openMap from 'react-native-open-maps';
 import {  
   View,
   Text,
+  Image,
   StyleSheet,
   TouchableOpacity,
+  Linking,
   Dimensions,
   Animated } from 'react-native';
 // import WheelOfFortune from 'react-native-wheel-of-fortune';
@@ -42,6 +46,7 @@ export default class HomeScreen extends Component {
       location: null,
       selectedLocations: [],
       selectedLocationsToggle: [],
+      savePlaceIds: [],
       wheelPrepped: false,
       resultsExist: true,
       saveSettingsValues: [],
@@ -50,6 +55,7 @@ export default class HomeScreen extends Component {
       wheelSize: width * 1.5,
       displayVenueMenu: false,
       updatedVenues: [],
+      winnerPlaceId: "",
     };
     this.child = null;
     this.updateIndex = this.updateIndex.bind(this)
@@ -118,6 +124,7 @@ export default class HomeScreen extends Component {
           this.setState({
             selectedLocations: this.state.selectedLocations.concat([response.data.results[i].name]),
             selectedLocationsToggle: this.state.selectedLocationsToggle.concat([true]),
+            savePlaceIds: this.state.savePlaceIds.concat([response.data.results[i].place_id]),
           });
         }
 
@@ -144,6 +151,11 @@ export default class HomeScreen extends Component {
     });
   };
 
+  clickMapButton = () => {
+    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=""&query_place_id=${this.state.winnerPlaceId}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`).catch(err => console.error('An error occurred', err));
+    //openMap({provider: 'google', endPlaceId: 'ChIJr3ETHg8VsYkRlam3WT0x0yA'});
+  };
+
   toggleMenu = async () => {
     const currValue = this.state.displaySettings;
     let captureSettings = [this.state.value, this.state.openNow].concat( this.state.selectedPricepoints);
@@ -156,6 +168,7 @@ export default class HomeScreen extends Component {
           winnerSet: false,
           selectedLocations: [],
           selectedLocationsToggle: [],
+          resultsExist: true,
         });
     
         await this.fetchLocations();
@@ -232,8 +245,27 @@ export default class HomeScreen extends Component {
   }
 
   setWinnerText = (winner) => {
-    // console.log("new winner: ", winner);
-    this.setState({winnerName: winner})
+
+    if(winner == ""){
+      this.setState({
+        winnerName: "",
+        winnerPlaceId: "",
+      });
+    }
+    else {
+      let saveIndex;
+      for (let i = 0; i < this.state.selectedLocations.length; i++){
+        if (this.state.selectedLocations[i] == winner){
+          saveIndex = i;
+          break;
+        }
+      }
+
+      this.setState({
+        winnerName: winner,
+        winnerPlaceId: this.state.savePlaceIds[saveIndex],
+      });
+    }
   }
 
   toggleWinner() {
@@ -303,9 +335,17 @@ export default class HomeScreen extends Component {
           <View style={styles.wheelMenu}>
             <TouchableOpacity
               onPress={this.buttonClickedHandler}
-              style={styles.button}>
+              style={styles.venueToggleButton}>
               <Text style={styles.startButtonText}>!</Text>
             </TouchableOpacity>
+
+            {this.state.winnerName != "" &&
+            <TouchableOpacity style={{marginRight: 30, zIndex: 100}} onPress={this.clickMapButton}>
+              <View //Add conditional for winner rendered here
+                style={styles.mapButton}>
+                <Image source={Images.googleMapsIcon} style={styles.googleMapsIcon}/>
+              </View>
+            </TouchableOpacity>}
 
             {/* Change the Opening Brace to this to view pan console logging with internal function: <PanGestureHandler onGestureEvent={this.handleGesture}>*/}
             <PanGestureHandler>
@@ -420,7 +460,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
-  button: {
+  venueToggleButton: {
     width: 50,
     height: 50,
     color: 'white',
@@ -433,6 +473,24 @@ const styles = StyleSheet.create({
     marginLeft: 30,
     marginTop: 30,
     zIndex: 1,
+  },
+  mapButton: {
+    width: 50,
+    height: 50,
+    color: 'white',
+    backgroundColor: 'purple',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 100,
+    backgroundColor: '#5858D0',
+    position: 'absolute',
+    marginTop: 30,
+    alignSelf: 'flex-end',
+    zIndex: 1,
+  },
+  googleMapsIcon: {
+    height: 35,
+    width: 35,
   },
   wheelMenu: {
     marginTop: height - ((width * 1.5)/2) - 52 - Constants.statusBarHeight - (160-35) //To position the wheel halfway off the bottom of the screen, have had to use known constants to calculate distance from the top of the screen in order are height of screen, half of wheel size, navBar height, statusBar height, knobHeight

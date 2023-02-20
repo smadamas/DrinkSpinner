@@ -146,11 +146,22 @@ const styles = StyleSheet.create({
         color: '#5858D0', 
         fontSize: 26
     },
-    closeIcon: {
+    closeIconContainer: {
+        height: 35,
+        width: 35,
+        top: '2%',
+        right: '2%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'absolute',
         alignSelf: 'flex-end',
+        zIndex: 99,
+    },
+    closeIcon: {
         height: 15,
         width: 15,
-        tintColor: '#5858D0'
+        tintColor: '#5858D0',
+        zIndex: 1,
     },
     container: {
         flex: 1,

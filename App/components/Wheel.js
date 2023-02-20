@@ -219,7 +219,7 @@ class Wheel extends React.Component {
       this.setState({
         winnerSet: true,
       });
-      this.props.toggleWinner;
+      this.props.toggleWinner; //might be able to remove this variable altogether if not being used
       this.props.setWinnerText(this.state.winner);
     }
   }
