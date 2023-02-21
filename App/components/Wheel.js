@@ -17,14 +17,15 @@ import { snap } from '@popmotion/popcorn';
 // const { Path, G, Text, TSpan } = Svg;
 const { width } = Dimensions.get('screen');
 const height = Dimensions.get('window').height;
+const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
 
 // const wheelSize = width * 0.95;
 const wheelSize = width * 1.5;
 const knobSize = 80;
 const fontSize = 11;
 const oneTurn = 360;
-const knobFill = color({luminosity: 'light', hue: 'purple' });
 const neutral = null;
+let appPurple;
 
 class Wheel extends React.Component {
   state = {};
@@ -48,11 +49,14 @@ class Wheel extends React.Component {
       numberOfSegments: selectedLocationsCount,
       angleBySegment: 360 / selectedLocationsCount,
       angleOffset: (360/selectedLocationsCount)/2,
-      wheelLabels: wheelLabels
+      wheelLabels: wheelLabels,
+      spinDirection: 1,
     };
 
     this._wheelPaths = this._makeWheel();
+    appPurple = this.props.appPurple;
   }
+
 
   componentDidUpdate(prevProps) {
 
@@ -129,10 +133,13 @@ class Wheel extends React.Component {
   _getWinnerIndex = () => {
     const deg = Math.abs(Math.round(this.angle % oneTurn));
     // wheel turning counterclockwise
+    // console.log('angle minus rotations: ', deg);
     if(this.angle < 0) {
+      // console.log('ctrclkws spin index: ', Math.floor(deg / this.state.angleBySegment));
       return Math.floor(deg / this.state.angleBySegment);
     }
     // wheel turning clockwise
+    // console.log('clkws spin index: ', (this.state.numberOfSegments - Math.floor(deg / this.state.angleBySegment)) % this.state.numberOfSegments);
     return (this.state.numberOfSegments - Math.floor(deg / this.state.angleBySegment)) % this.state.numberOfSegments;
   };
 
@@ -140,6 +147,9 @@ class Wheel extends React.Component {
     if (nativeEvent.state === State.END) {
       const { velocityX } = nativeEvent;
       this.props.setWinnerText("");
+      this.setState({
+        spinDirection: velocityX > 0 ? 1 : -1,
+      });
 
       Animated.decay(this._angle, {
         velocity: velocityX / 1000,
@@ -170,10 +180,10 @@ class Wheel extends React.Component {
     // [0, numberOfSegments]
     const YOLO = Animated.modulo(
       Animated.divide(
-        Animated.modulo(Animated.subtract(this._angle, this.state.angleOffset), oneTurn),
+        Animated.modulo(Animated.subtract(this._angle, this.state.angleOffset), (-1)*oneTurn),
         new Animated.Value(this.state.angleBySegment)
       ),
-      1
+      this.state.spinDirection
     );
 
     return (
@@ -182,7 +192,6 @@ class Wheel extends React.Component {
           width: knobSize,
           height: knobSize * 2,
           zIndex: 1,
-          // marginTop: height - 52 - Constants.statusBarHeight - wheelSize/1.4 - 50, //Subject to change later. Temporarily at the top of the wheel
           transform: [
             {
               rotate: YOLO.interpolate({
@@ -201,7 +210,7 @@ class Wheel extends React.Component {
         >
           <Path
             d="M28.034,0C12.552,0,0,12.552,0,28.034S28.034,100,28.034,100s28.034-56.483,28.034-71.966S43.517,0,28.034,0z   M28.034,40.477c-6.871,0-12.442-5.572-12.442-12.442c0-6.872,5.571-12.442,12.442-12.442c6.872,0,12.442,5.57,12.442,12.442  C40.477,34.905,34.906,40.477,28.034,40.477z"
-            fill={knobFill}
+            fill={appPurple}
           />
         </Svg>
       </Animated.View>
@@ -332,7 +341,7 @@ const styles = StyleSheet.create({
   },
   winnerText: {
     fontSize: 40,
-    fontFamily: 'Menlo',
+    fontFamily: fontFamily,
     position: 'absolute',
     margin: '10%',
     textAlign: 'center',

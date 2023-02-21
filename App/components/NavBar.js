@@ -1,17 +1,19 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import Images from '../assets/Images';
+const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
 
 class NavBar extends React.Component {
 
     constructor(props) {
       super(props);
+
     }
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.menuBarText}>Welcome to Drink Spinner!</Text>
+      <View style={[styles.container, {backgroundColor: this.props.appPurple}]}>
+        <Text style={styles.menuBarText}>Drink Spinner</Text>
         <TouchableOpacity style={styles.menuPlacement} onPress={this.props.toggleMenu}>
             <Image source={Images.menuIcon} style={styles.menuIcon}/>
         </TouchableOpacity>
@@ -24,7 +26,6 @@ const styles = StyleSheet.create({
   container: {
     height: 52,
     width: '100%',
-    backgroundColor: '#5858D0',
     flexDirection: 'row', // row
     alignItems: 'center',
     position: 'relative',
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
     fontSize: 17,
-    fontFamily: 'Menlo',
+    fontFamily: fontFamily,
   },
   menuPlacement: {
     position: 'absolute',

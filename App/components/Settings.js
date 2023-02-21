@@ -5,9 +5,13 @@ import ToggleSwitch from 'toggle-switch-react-native';
 import { Slider } from '@miblanchard/react-native-slider';
 import { ButtonGroup } from 'react-native-elements';
 
+let appPurple;
+
 export default class Settings extends Component {
     constructor(props) {
         super(props);
+
+        appPurple = this.props.appPurple;
     }
 
     render() {
@@ -26,8 +30,8 @@ export default class Settings extends Component {
                             <Slider
                                 value={this.props.value}
                                 onValueChange={value => this.props.updateDistanceValue(value[0])}
-                                minimumTrackTintColor='#5858D0'
-                                thumbTintColor='#5858D0'
+                                minimumTrackTintColor={appPurple}
+                                thumbTintColor={appPurple}
                                 minimumValue={1}
                                 maximumValue={this.props.inKm ? 30 : 20}
                                 step={1}
@@ -36,8 +40,8 @@ export default class Settings extends Component {
                                 <Text style={styles.distanceMeasureText}>mi</Text>
                                 <ToggleSwitch
                                     isOn={this.props.inKm}
-                                    onColor='#5858D0'
-                                    offColor='#5858D0'
+                                    onColor={appPurple}
+                                    offColor={appPurple}
                                     size="medium"
                                     onToggle={this.props.toggleDistanceMeasurement}
                                     style={{paddingLeft: '4%', paddingRight: '4%',}}
@@ -54,14 +58,14 @@ export default class Settings extends Component {
                                 selectedIndexes={this.props.selectedPricepoints}
                                 buttons={buttons}
                                 containerStyle={{borderRadius: 25}} 
-                                selectedButtonStyle={{backgroundColor: '#5858D0'}}
+                                selectedButtonStyle={{backgroundColor: appPurple}}
                             />
                         </View>
                         <View style={styles.openNowToggleContainer}>
                             <Text style={styles.menuText}>Open Now</Text>
                             <ToggleSwitch
                                 isOn={this.props.openNow}
-                                onColor='#5858D0'
+                                onColor={appPurple}
                                 offColor='lightgrey'
                                 size="large"
                                 onToggle={this.props.toggleIsOpenOption}
@@ -86,15 +90,14 @@ const styles = StyleSheet.create({
     },
     settingsHeader: {
         fontSize: 50,
-        color: '#5858D0',
         marginLeft: '5%'
     },
     menuText: {
-        color: '#5858D0', 
+        color: appPurple, 
         fontSize: 26
     },
     distanceMeasureText: {
-        color: '#5858D0', 
+        color: appPurple, 
         fontSize: 16
     },
     closeIconContainer: {
@@ -111,7 +114,7 @@ const styles = StyleSheet.create({
     closeIcon: {
         height: 15,
         width: 15,
-        tintColor: '#5858D0',
+        tintColor: appPurple,
         zIndex: 1,
     },
     sliderContainer: {

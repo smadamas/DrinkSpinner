@@ -4,8 +4,8 @@ import VenueToggle from '../components/VenueToggle';
 import Constants from 'expo-constants';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import React , {Component} from 'react';
+import color from 'randomcolor';
 import Images from '../assets/Images';
-import openMap from 'react-native-open-maps';
 import {  
   View,
   Text,
@@ -26,7 +26,10 @@ import LoadingIcon from '../components/LoadingIcon';
 import Wheel from '../components/Wheel';
 
 const height = Dimensions.get('window').height;
+const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
 const GOOGLE_PLACES_API_BASE_URL = 'https://maps.googleapis.com/maps/api/place';
+const googleMapsIcon = Images.googleMapsIcon;
+const appPurple = color({hue: 'purple' });
 
 export default class HomeScreen extends Component {
   constructor(props) {
@@ -56,6 +59,7 @@ export default class HomeScreen extends Component {
       displayVenueMenu: false,
       updatedVenues: [],
       winnerPlaceId: "",
+      appPurple: appPurple,
     };
     this.child = null;
     this.updateIndex = this.updateIndex.bind(this)
@@ -121,11 +125,13 @@ export default class HomeScreen extends Component {
           if (response.data.results[i] == null){
               break;
           }
-          this.setState({
-            selectedLocations: this.state.selectedLocations.concat([response.data.results[i].name]),
-            selectedLocationsToggle: this.state.selectedLocationsToggle.concat([true]),
-            savePlaceIds: this.state.savePlaceIds.concat([response.data.results[i].place_id]),
-          });
+          if (response.data.results[i].name != null && response.data.results[i].place_id != null){
+            this.setState({
+              selectedLocations: this.state.selectedLocations.concat([response.data.results[i].name]),
+              selectedLocationsToggle: this.state.selectedLocationsToggle.concat([true]),
+              savePlaceIds: this.state.savePlaceIds.concat([response.data.results[i].place_id]),
+            });
+          }
         }
 
         this.setState({
@@ -152,8 +158,11 @@ export default class HomeScreen extends Component {
   };
 
   clickMapButton = () => {
+    //console.log(this.state.selectedLocations);
+    //console.log(this.state.savePlaceIds);
+    //console.log(this.state.winnerName);
+    //console.log(this.state.winnerPlaceId);
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=""&query_place_id=${this.state.winnerPlaceId}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`).catch(err => console.error('An error occurred', err));
-    //openMap({provider: 'google', endPlaceId: 'ChIJr3ETHg8VsYkRlam3WT0x0yA'});
   };
 
   toggleMenu = async () => {
@@ -253,6 +262,8 @@ export default class HomeScreen extends Component {
       });
     }
     else {
+      // console.log(this.state.selectedLocations);
+
       let saveIndex;
       for (let i = 0; i < this.state.selectedLocations.length; i++){
         if (this.state.selectedLocations[i] == winner){
@@ -308,6 +319,7 @@ export default class HomeScreen extends Component {
           {/* Top bar of homescreen */}
           <NavBar
             displaySettings={this.state.displaySettings} 
+            appPurple={this.state.appPurple}
             toggleMenu={this.toggleMenu}></NavBar>
 
           {/* Conditionally displayed settings menu */}
@@ -321,6 +333,7 @@ export default class HomeScreen extends Component {
             inKm={this.state.inKm}
             selectedPricepoints={this.state.selectedPricepoints}
             updateIndex={this.updateIndex}
+            appPurple={this.state.appPurple}
           />}
 
           {/* Conditionally displayed venues menu */}
@@ -328,6 +341,7 @@ export default class HomeScreen extends Component {
             venues={this.state.selectedLocations}
             venueToggles={this.state.selectedLocationsToggle}
             toggleVenueMenu={this.toggleVenueMenu}
+            appPurple={this.state.appPurple}
           />}
 
           {this.state.winnerName != "" && <View style={styles.winnerView}><Text style={styles.winnerText}>Go to {this.state.winnerName}!</Text></View>}
@@ -343,7 +357,7 @@ export default class HomeScreen extends Component {
             <TouchableOpacity style={{marginRight: 30, zIndex: 100}} onPress={this.clickMapButton}>
               <View //Add conditional for winner rendered here
                 style={styles.mapButton}>
-                <Image source={Images.googleMapsIcon} style={styles.googleMapsIcon}/>
+                <Image source={googleMapsIcon} style={styles.googleMapsIcon}/>
               </View>
             </TouchableOpacity>}
 
@@ -355,6 +369,7 @@ export default class HomeScreen extends Component {
                   venueToggles={this.state.selectedLocationsToggle}
                   setWinnerText={this.setWinnerText}
                   toggleWinner={this.toggleWinner}
+                  appPurple={this.state.appPurple}
                 ></Wheel>
               </View>
             </PanGestureHandler>
@@ -378,11 +393,13 @@ export default class HomeScreen extends Component {
             inKm={this.state.inKm}
             selectedPricepoints={this.state.selectedPricepoints}
             updateIndex={this.updateIndex}
+            appPurple={this.state.appPurple}
           />}
 
           {/* Top bar of homescreen */}
           <NavBar
-            displaySettings={this.state.displaySettings} 
+            displaySettings={this.state.displaySettings}
+            // appPurple={this.state.appPurple}
             toggleMenu={this.toggleMenu}></NavBar>
           <View style={styles.centralMenuItems}>
             <Text style={styles.winnerText}>No results with those criteria, please change and try again.</Text>
@@ -398,6 +415,7 @@ export default class HomeScreen extends Component {
           {/* Top bar of homescreen */}
           <NavBar
             displaySettings={this.state.displaySettings} 
+            // appPurple={this.state.appPurple}
             toggleMenu={this.toggleMenu}></NavBar>
           <View style={styles.centralMenuItems}>
             <LoadingIcon></LoadingIcon>
@@ -447,7 +465,7 @@ const styles = StyleSheet.create({
   },
   winnerText: {
     fontSize: 40,
-    fontFamily: 'Menlo',
+    fontFamily: fontFamily,
     textAlign: 'center',
     margin: '10%',
   },
@@ -468,7 +486,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 100,
-    backgroundColor: '#5858D0',
+    backgroundColor: appPurple,
     position: 'absolute',
     marginLeft: 30,
     marginTop: 30,
@@ -482,7 +500,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 100,
-    backgroundColor: '#5858D0',
+    backgroundColor: appPurple,
     position: 'absolute',
     marginTop: 30,
     alignSelf: 'flex-end',

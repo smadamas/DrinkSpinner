@@ -5,6 +5,9 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Constants from 'expo-constants';
 import { Card } from 'react-native-paper';
 
+const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
+let appPurple;
+
 
 export default class VenueToggle extends Component {
     constructor(props) {
@@ -22,6 +25,8 @@ export default class VenueToggle extends Component {
         this.state = {
             data: tempVenues,
         }
+
+        appPurple = this.props.appPurple;
     }
 
     handleChange = (id) => {
@@ -92,8 +97,8 @@ export default class VenueToggle extends Component {
                                     }}>
                                 
                                     <MaterialCommunityIcons
-                                        name={item.isChecked ? 'checkbox-marked' : 'checkbox-blank-outline'} size={24} color="#5858D0" />
-                                    <Text style={{color: '#5858D0', fontSize: 15}}>{item.txt}</Text>
+                                        name={item.isChecked ? 'checkbox-marked' : 'checkbox-blank-outline'} size={24} color={appPurple} />
+                                    <Text style={{color: appPurple, fontSize: 15, fontFamily: fontFamily}}>{item.txt}</Text>
                                 </View>
                             </View>
                         </Card>
@@ -108,11 +113,12 @@ export default class VenueToggle extends Component {
             <Modal transparent={true}>
                 <TouchableOpacity onPress={async () => await this.props.toggleVenueMenu(this.state.data)} activeOpacity='1.0' style={{backgroundColor: "#000000aa", flex:1}}>
                     <TouchableOpacity activeOpacity={1} style={styles.settingsMenu} >
-                        <TouchableOpacity onPress={async () => await this.props.toggleVenueMenu(this.state.data)}>
+                        <TouchableOpacity onPress={async () => await this.props.toggleVenueMenu(this.state.data)} style={styles.closeIconContainer}>
                             <Image source={Images.closeIcon} style={styles.closeIcon}/>
                         </TouchableOpacity>
                         <Text style={styles.settingsHeader}>Wheel Inclusions</Text>
-                        <TouchableOpacity onPress={this.shuffleSelections} style={styles.button}>
+                        <TouchableOpacity onPress={this.shuffleSelections} style={[styles.button, {backgroundColor: appPurple}]}>
+                            <Text style={{fontSize: 15, color: 'white', fontFamily: fontFamily}}>Shuffle </Text>
                             <Image source={Images.shuffleIcon} style={styles.shuffleIcon}/>
                         </TouchableOpacity>
                         <View style={styles.container}>
@@ -136,15 +142,13 @@ const styles = StyleSheet.create({
         padding: '4%', 
         borderRadius: 14,
         height: '85%',
+        position: 'relative',
     },
     settingsHeader: {
-        fontSize: 35,
-        color: '#5858D0',
-        marginLeft: '5%'
-    },
-    menuText: {
-        color: '#5858D0', 
-        fontSize: 26
+        fontSize: 25,
+        color: appPurple,
+        marginLeft: '5%',
+        fontFamily: fontFamily,
     },
     closeIconContainer: {
         height: 35,
@@ -160,7 +164,7 @@ const styles = StyleSheet.create({
     closeIcon: {
         height: 15,
         width: 15,
-        tintColor: '#5858D0',
+        tintColor: appPurple,
         zIndex: 1,
     },
     container: {
@@ -188,19 +192,13 @@ const styles = StyleSheet.create({
         width: 20,
         tintColor: 'white'
     },
-    text: {
-        textAlign: 'center',
-        fontWeight: 'bold',
-    },
     button: {
-        width: 30,
         height: 30,
-        backgroundColor: 'purple',
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 100,
-        backgroundColor: '#5858D0',
+        flexDirection: 'row',
         zIndex: 1,
-        alignSelf: 'flex-end',
+        margin: '5%',
     },
 })
