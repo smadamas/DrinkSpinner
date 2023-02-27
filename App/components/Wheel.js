@@ -132,15 +132,13 @@ class Wheel extends React.Component {
 
   _getWinnerIndex = () => {
     const deg = Math.abs(Math.round(this.angle % oneTurn));
-    // wheel turning counterclockwise
-    // console.log('angle minus rotations: ', deg);
+
     if(this.angle < 0) {
-      // console.log('ctrclkws spin index: ', Math.floor(deg / this.state.angleBySegment));
-      return Math.floor(deg / this.state.angleBySegment);
+      // wheel turning counterclockwise
+      return (Math.floor((deg + this.state.angleOffset) / this.state.angleBySegment) % this.state.numberOfSegments);
     }
     // wheel turning clockwise
-    // console.log('clkws spin index: ', (this.state.numberOfSegments - Math.floor(deg / this.state.angleBySegment)) % this.state.numberOfSegments);
-    return (this.state.numberOfSegments - Math.floor(deg / this.state.angleBySegment)) % this.state.numberOfSegments;
+    return (this.state.numberOfSegments - Math.floor((deg + this.state.angleOffset) / this.state.angleBySegment)) % this.state.numberOfSegments;
   };
 
   _onPan = ({ nativeEvent }) => {
@@ -169,6 +167,7 @@ class Wheel extends React.Component {
             finished: true,
             winner: this._wheelPaths[winnerIndex].value
           });
+
           this.props.setWinnerText(this._wheelPaths[winnerIndex].value);
         });
         // do something here;

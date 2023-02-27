@@ -2,7 +2,7 @@ import NavBar from '../components/NavBar';
 import Settings from '../components/Settings';
 import VenueToggle from '../components/VenueToggle';
 import Constants from 'expo-constants';
-import { PanGestureHandler } from 'react-native-gesture-handler';
+import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import React , {Component} from 'react';
 import color from 'randomcolor';
 import Images from '../assets/Images';
@@ -29,7 +29,8 @@ const height = Dimensions.get('window').height;
 const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
 const GOOGLE_PLACES_API_BASE_URL = 'https://maps.googleapis.com/maps/api/place';
 const googleMapsIcon = Images.googleMapsIcon;
-const appPurple = color({hue: 'purple' });
+const purplesArray = ['#710193', '#B79CED', '#7F0D86', '#A45EE5', '#52489C'];
+const appPurple = purplesArray[Math.floor(Math.random() * (purplesArray.length - 1))];
 
 export default class HomeScreen extends Component {
   constructor(props) {
@@ -113,7 +114,7 @@ export default class HomeScreen extends Component {
     });
 
     //Call Google API
-    axios.get(`${GOOGLE_PLACES_API_BASE_URL}/textsearch/json?query=bar${this.state.openNow ? '&opennow' : ''}${this.state.pricePointString}&location=${this.state.location.coords.latitude}%2C${this.state.location.coords.longitude}&radius=${this.state.inKm ? this.state.value : 1609.344*this.state.value}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`).then((response) => {
+    axios.get(`${GOOGLE_PLACES_API_BASE_URL}/textsearch/json?query=drinks${this.state.openNow ? '&opennow' : ''}${this.state.pricePointString}&location=${this.state.location.coords.latitude}%2C${this.state.location.coords.longitude}&radius=${this.state.inKm ? this.state.value : 1609.344*this.state.value}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`).then((response) => {
       
       if (response.data.results.length <= 1){
         this.setState({
@@ -158,10 +159,6 @@ export default class HomeScreen extends Component {
   };
 
   clickMapButton = () => {
-    //console.log(this.state.selectedLocations);
-    //console.log(this.state.savePlaceIds);
-    //console.log(this.state.winnerName);
-    //console.log(this.state.winnerPlaceId);
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=""&query_place_id=${this.state.winnerPlaceId}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`).catch(err => console.error('An error occurred', err));
   };
 
@@ -177,6 +174,7 @@ export default class HomeScreen extends Component {
           winnerSet: false,
           selectedLocations: [],
           selectedLocationsToggle: [],
+          savePlaceIds: [],
           resultsExist: true,
         });
     
@@ -232,8 +230,12 @@ export default class HomeScreen extends Component {
   updateIndex (newIndices) {
     let tempArray = newIndices;
 
+    //No empty pricepoints allowed, can't unselect middle button only
+    if (newIndices.length == 0 || (newIndices.length == 2 && newIndices[0] == 0 && newIndices[1] == 2)){return;}
+
     for (let j = 0; j < tempArray.length - 1; j++)
     {
+        //Sorts array so the indices are chronological
         if (tempArray[j] > tempArray[j + 1])
         {
             let temp = tempArray[j];
@@ -262,8 +264,6 @@ export default class HomeScreen extends Component {
       });
     }
     else {
-      // console.log(this.state.selectedLocations);
-
       let saveIndex;
       for (let i = 0; i < this.state.selectedLocations.length; i++){
         if (this.state.selectedLocations[i] == winner){
@@ -281,7 +281,6 @@ export default class HomeScreen extends Component {
 
   toggleWinner() {
     const newWinnerToggle = !this.state.winnerSet;
-    // console.log("text toggle currently: ", newWinnerToggle);
     this.setState({winnerSet: newWinnerToggle})
   }
   
@@ -313,7 +312,8 @@ export default class HomeScreen extends Component {
 
     if (this.state.wheelPrepped){
       return (
-        <View style={styles.fullScreen}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <View style={styles.fullScreen}>
           <View style={styles.statusBar} />
 
           {/* Top bar of homescreen */}
@@ -375,6 +375,7 @@ export default class HomeScreen extends Component {
             </PanGestureHandler>
           </View>
         </View>
+        </GestureHandlerRootView>
       );
     }
     else if (!this.state.resultsExist){
@@ -399,7 +400,7 @@ export default class HomeScreen extends Component {
           {/* Top bar of homescreen */}
           <NavBar
             displaySettings={this.state.displaySettings}
-            // appPurple={this.state.appPurple}
+            appPurple={this.state.appPurple}
             toggleMenu={this.toggleMenu}></NavBar>
           <View style={styles.centralMenuItems}>
             <Text style={styles.winnerText}>No results with those criteria, please change and try again.</Text>
@@ -415,7 +416,7 @@ export default class HomeScreen extends Component {
           {/* Top bar of homescreen */}
           <NavBar
             displaySettings={this.state.displaySettings} 
-            // appPurple={this.state.appPurple}
+            appPurple={this.state.appPurple}
             toggleMenu={this.toggleMenu}></NavBar>
           <View style={styles.centralMenuItems}>
             <LoadingIcon></LoadingIcon>
@@ -449,7 +450,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   startButtonText: {
-    fontSize: 40,
+    fontSize: 35,
     color: '#fff',
     fontWeight: 'bold',
   },
@@ -458,7 +459,7 @@ const styles = StyleSheet.create({
     width: width,
     alignItems: 'center',
     position: 'absolute',
-    marginTop: '35%',
+    marginTop: Constants.statusBarHeight + 52, //Bring below the status and nav bar
   },
   tryAgainButton: {
     padding: 10,
@@ -468,6 +469,7 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily,
     textAlign: 'center',
     margin: '10%',
+    zIndex: 1000, //Should be foremost thing on the main UI when loaded (in case if overlaps with anything)
   },
   tryAgainButton: {
     padding: 5,
