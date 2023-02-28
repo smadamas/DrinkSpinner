@@ -4,71 +4,67 @@ import VenueToggle from '../components/VenueToggle';
 import Constants from 'expo-constants';
 import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 import React , {Component} from 'react';
-import color from 'randomcolor';
 import Images from '../assets/Images';
 import {  
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  Linking,
   Dimensions,
-  Animated } from 'react-native';
-// import WheelOfFortune from 'react-native-wheel-of-fortune';
-
-const { width } = Dimensions.get('screen');
+  Image,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View, } from 'react-native';
 
 // Api calls
 import axios from 'axios';
 import * as Location from 'expo-location';
 import LoadingIcon from '../components/LoadingIcon';
 import Wheel from '../components/Wheel';
-
-const height = Dimensions.get('window').height;
-const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
 const GOOGLE_PLACES_API_BASE_URL = 'https://maps.googleapis.com/maps/api/place';
+
+//Misc UI
+const height = Dimensions.get('window').height;
+const { width } = Dimensions.get('screen');
+
+const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
 const googleMapsIcon = Images.googleMapsIcon;
 const purplesArray = ['#710193', '#B79CED', '#7F0D86', '#A45EE5', '#52489C'];
 const appPurple = purplesArray[Math.floor(Math.random() * (purplesArray.length - 1))];
+const statusBarHeight = Platform.OS === 'ios' ? Constants.statusBarHeight : 0;
 
 export default class HomeScreen extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      winnerName: "",
-      winnerSet: false,
-      winnerIndex: null,
-      started: false,
+      appPurple: appPurple,
       displaySettings: false,
-      value: 5,
-      openNow: true,
-      selectedPricepoints: [1],
-      pricePointString: '',
-      venues: [],
+      displayVenueMenu: false,
+      inKm: false,
       location: null,
+      openNow: true,
+      pricePointString: '',
+      resultsExist: true,
+      savePlaceIds: [],
+      saveSettingsValues: [],
       selectedLocations: [],
       selectedLocationsToggle: [],
-      savePlaceIds: [],
-      wheelPrepped: false,
-      resultsExist: true,
-      saveSettingsValues: [],
-      inKm: false,
+      selectedPricepoints: [1],
       showVenues: false,
-      wheelSize: width * 1.5,
-      displayVenueMenu: false,
+      started: false,
       updatedVenues: [],
+      value: 5,
+      venues: [],
+      winnerIndex: null,
+      wheelPrepped: false,
+      wheelSize: width * 1.5,
+      winnerName: "",
       winnerPlaceId: "",
-      appPurple: appPurple,
     };
-    this.child = null;
+
+    this.setWinnerText = this.setWinnerText.bind(this)
+    this.toggleVenueMenu = this.toggleVenueMenu.bind(this)
     this.updateIndex = this.updateIndex.bind(this)
     this.updateDistanceValue = this.updateDistanceValue.bind(this)
-    this.setWinnerText = this.setWinnerText.bind(this)
-    this.toggleWinner = this.toggleWinner.bind(this)
-    this.toggleVenueMenu = this.toggleVenueMenu.bind(this)
-
   }
 
   async componentDidMount() {
@@ -144,14 +140,7 @@ export default class HomeScreen extends Component {
     });
   }
 
-  buttonPress = () => {
-    this.setState({
-      started: true,
-    });
-    this.child._onPress();
-  }
-
-  buttonClickedHandler = () => {
+  venueButtonClickedHandler = () => {
     const currValue = this.state.displayVenueMenu;
     this.setState({
       displayVenueMenu: !currValue,
@@ -159,6 +148,7 @@ export default class HomeScreen extends Component {
   };
 
   clickMapButton = () => {
+    console.log('map button clicked');
     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=""&query_place_id=${this.state.winnerPlaceId}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`).catch(err => console.error('An error occurred', err));
   };
 
@@ -167,11 +157,10 @@ export default class HomeScreen extends Component {
     let captureSettings = [this.state.value, this.state.openNow].concat( this.state.selectedPricepoints);
 
     if (currValue){
-      if (this.state.saveSettingsValues.toString() !== captureSettings.toString()){ // Determines whether any settings were changed before re-fetching/rendeing the wheel
+      if (this.state.saveSettingsValues.toString() !== captureSettings.toString()){ // Determines whether any settings were changed before re-fetching/rendering the wheel
         this.setState({
           displaySettings: !currValue,
           wheelPrepped: false,
-          winnerSet: false,
           selectedLocations: [],
           selectedLocationsToggle: [],
           savePlaceIds: [],
@@ -233,9 +222,9 @@ export default class HomeScreen extends Component {
     //No empty pricepoints allowed, can't unselect middle button only
     if (newIndices.length == 0 || (newIndices.length == 2 && newIndices[0] == 0 && newIndices[1] == 2)){return;}
 
+    //Sorts array so the indices are chronological
     for (let j = 0; j < tempArray.length - 1; j++)
     {
-        //Sorts array so the indices are chronological
         if (tempArray[j] > tempArray[j + 1])
         {
             let temp = tempArray[j];
@@ -248,11 +237,6 @@ export default class HomeScreen extends Component {
     this.setState({
       selectedPricepoints: tempArray
     })
-  }
-
-  handleGesture = (evt) => {
-    let{nativeEvent} = evt
-        console.log(nativeEvent)
   }
 
   setWinnerText = (winner) => {
@@ -279,36 +263,24 @@ export default class HomeScreen extends Component {
     }
   }
 
-  toggleWinner() {
-    const newWinnerToggle = !this.state.winnerSet;
-    this.setState({winnerSet: newWinnerToggle})
+  _renderSettings = () => {
+    return(
+      <Settings
+            toggleMenu={this.toggleMenu}
+            updateDistanceValue={this.updateDistanceValue}
+            toggleIsOpenOption={this.toggleIsOpenOption}
+            toggleDistanceMeasurement={this.toggleDistanceMeasurement}
+            value={this.state.value}
+            openNow={this.state.openNow}
+            inKm={this.state.inKm}
+            selectedPricepoints={this.state.selectedPricepoints}
+            updateIndex={this.updateIndex}
+            appPurple={this.state.appPurple}
+      />
+    );
   }
   
   render() {
-    const wheelOptions = {
-      rewards: this.state.selectedLocations,
-      knobSize: 50,
-      borderWidth: 5,
-      borderColor: 'black',
-      innerRadius: 10,
-      outerHeight: 1000,
-      duration: 3000,
-      backgroundColor: 'transparent',
-      textAngle: 'vertical',
-      knobSource: require('../assets/knob.png'),
-      onRef: ref => (this.child = ref),
-    };
-
-    const segColors = [
-      '#EE4040',
-      '#F0CF50',
-      '#815CD1',
-      '#3DA5E0',
-      '#34A24F',
-      '#F9AA1F',
-      '#EC3F3F',
-      '#FF9000'
-    ]
 
     if (this.state.wheelPrepped){
       return (
@@ -323,18 +295,7 @@ export default class HomeScreen extends Component {
             toggleMenu={this.toggleMenu}></NavBar>
 
           {/* Conditionally displayed settings menu */}
-          {this.state.displaySettings && <Settings
-            toggleMenu={this.toggleMenu}
-            updateDistanceValue={this.updateDistanceValue}
-            toggleIsOpenOption={this.toggleIsOpenOption}
-            toggleDistanceMeasurement={this.toggleDistanceMeasurement}
-            value={this.state.value}
-            openNow={this.state.openNow}
-            inKm={this.state.inKm}
-            selectedPricepoints={this.state.selectedPricepoints}
-            updateIndex={this.updateIndex}
-            appPurple={this.state.appPurple}
-          />}
+          {this.state.displaySettings && this._renderSettings()}
 
           {/* Conditionally displayed venues menu */}
           {this.state.displayVenueMenu && <VenueToggle
@@ -344,31 +305,31 @@ export default class HomeScreen extends Component {
             appPurple={this.state.appPurple}
           />}
 
-          {this.state.winnerName != "" && <View style={styles.winnerView}><Text style={styles.winnerText}>Go to {this.state.winnerName}!</Text></View>}
+          {/* Conditionally displayed winner text */}
+          {this.state.winnerName != "" && <View 
+            style={styles.winnerView}>
+              <Text style={styles.winnerText}>Go to {this.state.winnerName}!</Text>
+          </View>}
 
           <View style={styles.wheelMenu}>
             <TouchableOpacity
-              onPress={this.buttonClickedHandler}
+              onPress={this.venueButtonClickedHandler}
               style={styles.venueToggleButton}>
-              <Text style={styles.startButtonText}>!</Text>
+              <Text style={styles.venueButtonText}>!</Text>
             </TouchableOpacity>
 
+            {/* Conditionally displayed google maps button */}
             {this.state.winnerName != "" &&
-            <TouchableOpacity style={{marginRight: 30, zIndex: 100}} onPress={this.clickMapButton}>
-              <View //Add conditional for winner rendered here
-                style={styles.mapButton}>
+            <TouchableOpacity style={styles.mapButton} onPress={this.clickMapButton}>
                 <Image source={googleMapsIcon} style={styles.googleMapsIcon}/>
-              </View>
             </TouchableOpacity>}
 
-            {/* Change the Opening Brace to this to view pan console logging with internal function: <PanGestureHandler onGestureEvent={this.handleGesture}>*/}
             <PanGestureHandler>
               <View key={this.state.selectedLocationsToggle}>  
                 <Wheel 
                   selectedLocations={this.state.selectedLocations}
                   venueToggles={this.state.selectedLocationsToggle}
                   setWinnerText={this.setWinnerText}
-                  toggleWinner={this.toggleWinner}
                   appPurple={this.state.appPurple}
                 ></Wheel>
               </View>
@@ -384,31 +345,22 @@ export default class HomeScreen extends Component {
           <View style={styles.statusBar} />
 
           {/* Conditionally displayed settings menu */}
-          {this.state.displaySettings && <Settings
-            toggleMenu={this.toggleMenu}
-            updateDistanceValue={this.updateDistanceValue}
-            toggleIsOpenOption={this.toggleIsOpenOption}
-            toggleDistanceMeasurement={this.toggleDistanceMeasurement}
-            value={this.state.value}
-            openNow={this.state.openNow}
-            inKm={this.state.inKm}
-            selectedPricepoints={this.state.selectedPricepoints}
-            updateIndex={this.updateIndex}
-            appPurple={this.state.appPurple}
-          />}
+          {this.state.displaySettings && this._renderSettings()}
 
           {/* Top bar of homescreen */}
           <NavBar
             displaySettings={this.state.displaySettings}
             appPurple={this.state.appPurple}
-            toggleMenu={this.toggleMenu}></NavBar>
+            toggleMenu={this.toggleMenu}>
+          </NavBar>
+
           <View style={styles.centralMenuItems}>
             <Text style={styles.winnerText}>No results with those criteria, please change and try again.</Text>
           </View>
         </View>
       );
     }
-    else {
+    else { //Waiting on results to return and wheel to build
       return (
         <View style={styles.fullScreen}>
           <View style={styles.statusBar} />
@@ -417,7 +369,9 @@ export default class HomeScreen extends Component {
           <NavBar
             displaySettings={this.state.displaySettings} 
             appPurple={this.state.appPurple}
-            toggleMenu={this.toggleMenu}></NavBar>
+            toggleMenu={this.toggleMenu}>
+          </NavBar>
+
           <View style={styles.centralMenuItems}>
             <LoadingIcon></LoadingIcon>
           </View>
@@ -428,57 +382,40 @@ export default class HomeScreen extends Component {
 }
 
 const styles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  statusBar: {
-    backgroundColor: 'black',
-    height: Constants.statusBarHeight
-  },
   centralMenuItems: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  startButtonView: {
+  fullScreen: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  googleMapsIcon: {
+    height: 35,
+    width: 35,
+    zIndex: 1,
+  },
+  mapButton: {
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 100,
     position: 'absolute',
+    marginTop: 30,
+    right: 30,
+    zIndex: 100,
+    backgroundColor: appPurple,
   },
-  startButton: {
-    backgroundColor: 'rgba(0,0,0,.5)',
-    marginTop: 50,
-    padding: 5,
+  statusBar: {
+    backgroundColor: 'black',
+    height: statusBarHeight
   },
-  startButtonText: {
+  venueButtonText: {
     fontSize: 35,
     color: '#fff',
     fontWeight: 'bold',
-  },
-  winnerView: {
-    justifyContent: 'center',
-    width: width,
-    alignItems: 'center',
-    position: 'absolute',
-    marginTop: Constants.statusBarHeight + 52, //Bring below the status and nav bar
-  },
-  tryAgainButton: {
-    padding: 10,
-  },
-  winnerText: {
-    fontSize: 40,
-    fontFamily: fontFamily,
-    textAlign: 'center',
-    margin: '10%',
-    zIndex: 1000, //Should be foremost thing on the main UI when loaded (in case if overlaps with anything)
-  },
-  tryAgainButton: {
-    padding: 5,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  tryAgainText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
   },
   venueToggleButton: {
     width: 50,
@@ -494,25 +431,21 @@ const styles = StyleSheet.create({
     marginTop: 30,
     zIndex: 1,
   },
-  mapButton: {
-    width: 50,
-    height: 50,
-    color: 'white',
-    backgroundColor: 'purple',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 100,
-    backgroundColor: appPurple,
-    position: 'absolute',
-    marginTop: 30,
-    alignSelf: 'flex-end',
-    zIndex: 1,
-  },
-  googleMapsIcon: {
-    height: 35,
-    width: 35,
-  },
   wheelMenu: {
-    marginTop: height - ((width * 1.5)/2) - 52 - Constants.statusBarHeight - (160-35) //To position the wheel halfway off the bottom of the screen, have had to use known constants to calculate distance from the top of the screen in order are height of screen, half of wheel size, navBar height, statusBar height, knobHeight
+    marginTop: height - ((width * 1.5)/2) - 52 - statusBarHeight - (160-35) //To position the wheel halfway off the bottom of the screen, have had to use known constants to calculate distance from the top of the screen in order are height of screen, half of wheel size, navBar height, statusBar height, knobHeight
+  },
+  winnerText: {
+    fontSize: 40,
+    fontFamily: fontFamily,
+    textAlign: 'center',
+    margin: '10%',
+    zIndex: 1000, //Should be foremost thing on the main UI when loaded (in case if overlaps with anything)
+  },
+  winnerView: {
+    justifyContent: 'center',
+    width: width,
+    alignItems: 'center',
+    position: 'absolute',
+    marginTop: Constants.statusBarHeight + 52, //Bring below the status and nav bar
   },
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, Image, View } from 'react-native';
+import { Dimensions, View } from 'react-native';
 import HomeScreen from './App/screens/HomeScreen';
 
 const height = Dimensions.get('window').height;
@@ -8,6 +8,7 @@ export default class App extends React.Component {
   
   constructor(props) {
     super(props);
+
     /* Holds state for if async method is ready or not */
     this.state = {
       isReady: false,

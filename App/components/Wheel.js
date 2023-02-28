@@ -1,30 +1,23 @@
 import React from 'react';
 import {
-  StyleSheet,
-  View,
-  Text as RNText,
+  Animated,
   Dimensions,
-  Animated
+  StyleSheet,
+  Text as RNText,
+  View,
 } from 'react-native';
-import Constants from 'expo-constants';
-// import { GestureHandler, Svg } from 'expo';
-import Svg, { Path, G, Text, TSpan } from "react-native-svg";
+import Svg, { G, Path, Text, TSpan } from "react-native-svg";
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import * as d3Shape from 'd3-shape';
 import color from 'randomcolor';
 import { snap } from '@popmotion/popcorn';
-// const { PanGestureHandler, State } = GestureHandler;
-// const { Path, G, Text, TSpan } = Svg;
 const { width } = Dimensions.get('screen');
-const height = Dimensions.get('window').height;
 const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
 
-// const wheelSize = width * 0.95;
 const wheelSize = width * 1.5;
 const knobSize = 80;
 const fontSize = 11;
 const oneTurn = 360;
-const neutral = null;
 let appPurple;
 
 class Wheel extends React.Component {
@@ -42,15 +35,14 @@ class Wheel extends React.Component {
     let selectedLocationsCount = wheelLabels.length; 
     
     this.state = {
-      enabled: true,
-      finished: false,
-      winner: null,
-      winnerSet: false,
-      numberOfSegments: selectedLocationsCount,
       angleBySegment: 360 / selectedLocationsCount,
       angleOffset: (360/selectedLocationsCount)/2,
-      wheelLabels: wheelLabels,
+      enabled: true,
+      finished: false,
+      numberOfSegments: selectedLocationsCount,
       spinDirection: 1,
+      winner: null,
+      wheelLabels: wheelLabels,
     };
 
     this._wheelPaths = this._makeWheel();
@@ -170,13 +162,11 @@ class Wheel extends React.Component {
 
           this.props.setWinnerText(this._wheelPaths[winnerIndex].value);
         });
-        // do something here;
       });
     }
   };
 
   _renderKnob = () => {
-    // [0, numberOfSegments]
     const YOLO = Animated.modulo(
       Animated.divide(
         Animated.modulo(Animated.subtract(this._angle, this.state.angleOffset), (-1)*oneTurn),
@@ -221,16 +211,6 @@ class Wheel extends React.Component {
       <RNText style={styles.winnerText}>Go to {this.state.winner}!</RNText>
     );
   };
-
-  setWinner = () => {
-    if (this.state.winnerSet == false){
-      this.setState({
-        winnerSet: true,
-      });
-      this.props.toggleWinner; //might be able to remove this variable altogether if not being used
-      this.props.setWinnerText(this.state.winner);
-    }
-  }
 
   _renderSvgWheel = () => {
     return (
@@ -288,7 +268,7 @@ class Wheel extends React.Component {
                     >
                       <Text
                         x={x}
-                        y={y - 80}
+                        y={y - 70}
                         fill="white"
                         textAnchor="middle"
                         fontSize={fontSize}
@@ -333,17 +313,17 @@ class Wheel extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  wheel: {
-    height: wheelSize,
-    position: 'absolute',
-    marginTop: (knobSize*2) - 35,
-  },
   winnerText: {
     fontSize: 40,
     fontFamily: fontFamily,
     position: 'absolute',
     margin: '10%',
     textAlign: 'center',
+  },
+  wheel: {
+    height: wheelSize,
+    position: 'absolute',
+    marginTop: (knobSize*2) - 35,
   },
   wheelAndRelated: {
     alignItems: 'center',

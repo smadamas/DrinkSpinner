@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Images from '../assets/Images';
 const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
 
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   container: {
     height: 52,
     width: '100%',
-    flexDirection: 'row', // row
+    flexDirection: 'row',
     alignItems: 'center',
     position: 'relative',
   },
@@ -37,6 +37,12 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontFamily: fontFamily,
   },
+  menuIcon: {
+    tintColor: 'white',
+    height: 20,
+    width: 20,
+    zIndex: 1,
+  },
   menuPlacement: {
     position: 'absolute',
     right: '5%',
@@ -46,13 +52,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 99,
   },
-  menuIcon: {
-    tintColor: 'white',
-    height: 20,
-    width: 20,
-    zIndex: 1,
-
-  }
 });
 
 export default NavBar;

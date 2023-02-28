@@ -1,8 +1,7 @@
-import { Modal, StyleSheet, View, Image, Text, TouchableOpacity, Pressable, StatusBar, FlatList } from 'react-native';
-import React, { Component, useState } from 'react';
+import { FlatList, Image, Modal, Pressable, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { Component } from 'react';
 import Images from '../assets/Images';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Constants from 'expo-constants';
 import { Card } from 'react-native-paper';
 
 const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
@@ -13,17 +12,17 @@ export default class VenueToggle extends Component {
     constructor(props) {
         super(props);
 
-        // Assemble array of data for render with venues from parent
+        // Assemble array of data with venues from parent
         let counter = 0;
         let tempVenues = [];
 
         while(counter < this.props.venues.length){
-            tempVenues= tempVenues.concat([{ id: counter + 1, txt: this.props.venues[counter].length > 24 ? this.props.venues[counter].substring(0,24) + '...' : this.props.venues[counter], isChecked: this.props.venueToggles[counter] }])
+            tempVenues= tempVenues.concat([{ id: counter + 1, txt: this.props.venues[counter].length > 23 ? this.props.venues[counter].substring(0,23) + '...' : this.props.venues[counter], isChecked: this.props.venueToggles[counter] }])
             counter += 1;
         }
 
         this.state = {
-            data: tempVenues,
+            venues: tempVenues,
         }
 
         appPurple = this.props.appPurple;
@@ -31,7 +30,7 @@ export default class VenueToggle extends Component {
 
     handleChange = (id) => {
 
-        let temp = this.state.data.map((product) => {
+        let temp = this.state.venues.map((product) => {
             if (id === product.id) {
                 return { ...product, isChecked: !product.isChecked };
             }
@@ -39,16 +38,16 @@ export default class VenueToggle extends Component {
         });
 
         this.setState({
-            data: temp
+            venues: temp
         });
     };
 
     shuffleSelections = () => {
         let temp;
 
-        if (this.state.data.length < 6){
-            temp = this.state.data.map((product) => {
-                if (id === product.id) {
+        if (this.state.venues.length < 6){
+            temp = this.state.venues.map((product) => {
+                if (this.state.venues.id == product.id) {
                     return { ...product, isChecked: true };
                 }
                 return product;
@@ -59,13 +58,13 @@ export default class VenueToggle extends Component {
             let newIndex;
             for (let i = 0; i < 5; i++){
                 do {
-                    newIndex = Math.floor(Math.random() * (this.state.data.length - 1)) + 1;
+                    newIndex = Math.floor(Math.random() * (this.state.venues.length - 1)) + 1;
                 }
                 while (storeIndices.includes(newIndex));
                 storeIndices = storeIndices.concat([newIndex]);
             }
 
-            temp = this.state.data.map((product) => {
+            temp = this.state.venues.map((product) => {
                 if (storeIndices.includes(product.id)) {
                     return { ...product, isChecked: true };
                 }
@@ -76,7 +75,7 @@ export default class VenueToggle extends Component {
         }
 
         this.setState({
-            data: temp
+            venues: temp
         });
     }
 
@@ -111,9 +110,9 @@ export default class VenueToggle extends Component {
     render() {
         return (
             <Modal transparent={true}>
-                <TouchableOpacity onPress={async () => await this.props.toggleVenueMenu(this.state.data)} activeOpacity='1.0' style={{backgroundColor: "#000000aa", flex:1}}>
+                <TouchableOpacity onPress={async () => await this.props.toggleVenueMenu(this.state.venues)} activeOpacity='1.0' style={{backgroundColor: "#000000aa", flex:1}}>
                     <TouchableOpacity activeOpacity={1} style={styles.settingsMenu} >
-                        <TouchableOpacity onPress={async () => await this.props.toggleVenueMenu(this.state.data)} style={styles.closeIconContainer}>
+                        <TouchableOpacity onPress={async () => await this.props.toggleVenueMenu(this.state.venues)} style={styles.closeIconContainer}>
                             <Image source={Images.closeIcon} style={styles.closeIcon}/>
                         </TouchableOpacity>
                         <Text style={styles.settingsHeader}>Wheel Inclusions</Text>
@@ -123,7 +122,7 @@ export default class VenueToggle extends Component {
                         </TouchableOpacity>
                         <View style={styles.container}>
                             <View style={{ flex: 1 }}>
-                                {this.renderFlatList(this.state.data)}
+                                {this.renderFlatList(this.state.venues)}
                             </View>
                             <StatusBar />
                         </View>

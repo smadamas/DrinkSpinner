@@ -1,4 +1,4 @@
-import { Modal, StyleSheet, View, Image, Text, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { Component } from 'react';
 import Images from '../assets/Images';
 import ToggleSwitch from 'toggle-switch-react-native';
@@ -52,7 +52,6 @@ export default class Settings extends Component {
                         <View style={styles.priceRangeContainer}>
                             <Text style={[styles.menuText, {paddingBottom: '5%'}]}>Price Range</Text>
                             <ButtonGroup
-                                underlayColor='red' //eliminate line if not necessary
                                 onPress={this.props.updateIndex}
                                 selectMultiple={true}
                                 selectedIndexes={this.props.selectedPricepoints}
@@ -80,25 +79,11 @@ export default class Settings extends Component {
 }
 
 const styles = StyleSheet.create({
-    settingsMenu: {
-        backgroundColor: 'white', 
-        margin: '5%',
-        marginTop: '15%', 
-        padding: '5%', 
-        borderRadius: 14,
-        position: 'relative'
-    },
-    settingsHeader: {
-        fontSize: 50,
-        marginLeft: '5%'
-    },
-    menuText: {
-        color: appPurple, 
-        fontSize: 26
-    },
-    distanceMeasureText: {
-        color: appPurple, 
-        fontSize: 16
+    closeIcon: {
+        height: 15,
+        width: 15,
+        tintColor: appPurple,
+        zIndex: 1,
     },
     closeIconContainer: {
         height: 35,
@@ -111,26 +96,40 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         zIndex: 99,
     },
-    closeIcon: {
-        height: 15,
-        width: 15,
-        tintColor: appPurple,
-        zIndex: 1,
-    },
-    sliderContainer: {
-        margin: '5%'
-    },
-    openNowToggleContainer: {
-        margin: '5%',
-        flexDirection: 'row',
-        alignItems: 'center'
+    distanceMeasureText: {
+        color: appPurple, 
+        fontSize: 16
     },
     distanceMeasureToggleContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',
     },
+    menuText: {
+        color: appPurple, 
+        fontSize: 26
+    },
+    openNowToggleContainer: {
+        margin: '5%',
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
     priceRangeContainer: {
         margin: '5%',
-    }
+    },
+    settingsHeader: {
+        fontSize: 50,
+        marginLeft: '5%'
+    },
+    settingsMenu: {
+        backgroundColor: 'white', 
+        margin: '5%',
+        marginTop: '15%', 
+        padding: '5%', 
+        borderRadius: 14,
+        position: 'relative'
+    },
+    sliderContainer: {
+        margin: '5%'
+    },
 })
