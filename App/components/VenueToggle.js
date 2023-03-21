@@ -6,7 +6,7 @@ import { Card } from 'react-native-paper';
 
 const fontFamily = Platform.OS === 'ios' ? 'Menlo' : 'monospace';
 let appPurple;
-
+let howManySelected = 0;
 
 export default class VenueToggle extends Component {
     constructor(props) {
@@ -19,6 +19,9 @@ export default class VenueToggle extends Component {
         while(counter < this.props.venues.length){
             tempVenues= tempVenues.concat([{ id: counter + 1, txt: this.props.venues[counter].length > 23 ? this.props.venues[counter].substring(0,23) + '...' : this.props.venues[counter], isChecked: this.props.venueToggles[counter] }])
             counter += 1;
+            if (this.props.venueToggles[counter-1]){
+                howManySelected++;
+            }
         }
 
         this.state = {
@@ -29,14 +32,16 @@ export default class VenueToggle extends Component {
     }
 
     handleChange = (id) => {
-
         let temp = this.state.venues.map((product) => {
             if (id === product.id) {
-                return { ...product, isChecked: !product.isChecked };
+                if (howManySelected > 1 || !product.isChecked){
+                    product.isChecked ? howManySelected-- : howManySelected++;
+                    return { ...product, isChecked: !product.isChecked };
+                }
             }
             return product;
         });
-
+        
         this.setState({
             venues: temp
         });
@@ -44,10 +49,12 @@ export default class VenueToggle extends Component {
 
     shuffleSelections = () => {
         let temp;
+        howManySelected = 0;
 
         if (this.state.venues.length < 6){
             temp = this.state.venues.map((product) => {
                 if (this.state.venues.id == product.id) {
+                    howManySelected++;
                     return { ...product, isChecked: true };
                 }
                 return product;
@@ -66,6 +73,7 @@ export default class VenueToggle extends Component {
 
             temp = this.state.venues.map((product) => {
                 if (storeIndices.includes(product.id)) {
+                    howManySelected++;
                     return { ...product, isChecked: true };
                 }
                 else {

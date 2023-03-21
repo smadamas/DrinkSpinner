@@ -112,6 +112,7 @@ export default class HomeScreen extends Component {
     //Call Google API
     axios.get(`${GOOGLE_PLACES_API_BASE_URL}/textsearch/json?query=drinks${this.state.openNow ? '&opennow' : ''}${this.state.pricePointString}&location=${this.state.location.coords.latitude}%2C${this.state.location.coords.longitude}&radius=${this.state.inKm ? this.state.value : 1609.344*this.state.value}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`).then((response) => {
       
+      console.log(`${GOOGLE_PLACES_API_BASE_URL}/textsearch/json?query=drinks${this.state.openNow ? '&opennow' : ''}${this.state.pricePointString}&location=${this.state.location.coords.latitude}%2C${this.state.location.coords.longitude}&radius=${this.state.inKm ? this.state.value : 1609.344*this.state.value}&key=AIzaSyD31Tchj71EFAlGpute2CvM_uP_GLCUlcg`);
       if (response.data.results.length <= 1){
         this.setState({
           resultsExist: false

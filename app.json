@@ -1,11 +1,46 @@
 {
   "expo": {
-    "name": "developers-zone",
-    "slug": "developers-zone",
-    "version": "1.0.0",
+    "name": "drink-spinner",
+    "slug": "drink-spinner",
+    "version": "4.0.0",
+    "orientation": "portrait",
+    "icon": "./App/assets/DrinkSpinnerIcon.png",
+    "splash": {
+      "image": "./App/assets/SplashScreenSFZ.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
     "assetBundlePatterns": [
       "**/*"
-    ]
-  },
-  "name": "developers-zone"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.sfzg.drinkspinner",
+      "buildNumber": "1.0.1"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./App/assets/DrinkSpinnerIcon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.sfzgames.drinkspinner",
+      "versionCode": 2,
+      "permissions": []
+    },
+    "web": {
+      "favicon": "./App/assets/DrinkSpinnerIcon.png"
+    },
+    "description": "",
+    "androidNavigationBar": {
+      "visible": "immersive"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "45a36c22-aa6e-44e0-961d-69371792e859"
+      }
+    }
+  }
 }
