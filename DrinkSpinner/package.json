@@ -27,7 +27,8 @@
     "d3-shape": "^3.2.0",
     "randomcolor": "^0.6.2",
     "@popmotion/popcorn": "^0.4.4",
-    "toggle-switch-react-native": "^3.3.0"
+    "toggle-switch-react-native": "^3.3.0",
+    "expo-dev-client": "~2.4.12"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

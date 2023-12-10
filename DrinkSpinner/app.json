@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "DrinkSpinner",
-    "slug": "DrinkSpinner",
-    "version": "1.0.0",
+    "name": "drink-spinner",
+    "slug": "drink-spinner",
+    "version": "5.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./App/assets/DrinkSpinnerIcon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./App/assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -15,16 +15,23 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.sforzandogames.DrinkSpinner",
+      "buildNumber": "27",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to search Google for places nearby as recommendations. It uses the same resources as Google Maps."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./App/assets/DrinkSpinnerIcon.png",
         "backgroundColor": "#ffffff"
       }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
+    "extra": {
+      "eas": {
+        "projectId": "45a36c22-aa6e-44e0-961d-69371792e859"
+      }
     }
   }
 }
